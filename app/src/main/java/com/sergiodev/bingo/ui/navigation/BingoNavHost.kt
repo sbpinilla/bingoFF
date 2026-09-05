@@ -42,7 +42,9 @@ fun BingoNavHost(
             route = BingoRoute.GAME_PLAY_PATTERN,
             arguments = listOf(navArgument(BingoRoute.GAME_PLAY_ARG) { type = NavType.StringType }),
         ) {
-            GamePlayScreen()
+            GamePlayScreen(
+                onEndGame = { navController.popBackStack(BingoRoute.BOARD_LIST, inclusive = false) },
+            )
         }
     }
 }

@@ -19,6 +19,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sergiodev.bingo.domain.model.BingoLetter
+import com.sergiodev.bingo.ui.common.BingoFieldPadding
+import com.sergiodev.bingo.ui.common.BingoFieldWidth
+import com.sergiodev.bingo.ui.common.BingoFreeCell
+import com.sergiodev.bingo.ui.common.BingoNumberField
 
 @Composable
 fun CreateBoardScreen(
@@ -69,11 +73,14 @@ fun CreateBoardContent(
                 val values = state.numbers.getValue(letter)
                 val errors = state.fieldErrors[letter]
                 values.forEachIndexed { index, value ->
-                    OutlinedTextField(
+                    if (letter == BingoLetter.N && index == 2) {
+                        BingoFreeCell(modifier = Modifier.padding(BingoFieldPadding))
+                    }
+                    BingoNumberField(
                         value = value,
                         onValueChange = { onNumberChange(letter, index, it) },
                         isError = errors?.getOrNull(index) != null,
-                        modifier = Modifier.width(64.dp).padding(2.dp),
+                        modifier = Modifier.width(BingoFieldWidth).padding(BingoFieldPadding),
                     )
                 }
             }
