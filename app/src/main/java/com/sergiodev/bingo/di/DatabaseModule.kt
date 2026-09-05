@@ -3,7 +3,7 @@ package com.sergiodev.bingo.di
 import android.content.Context
 import androidx.room.Room
 import com.sergiodev.bingo.data.local.BingoDatabase
-import com.sergiodev.bingo.data.local.dao.SampleItemDao
+import com.sergiodev.bingo.data.local.dao.BoardDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,5 +23,5 @@ object DatabaseModule {
             .build()
 
     @Provides
-    fun provideSampleItemDao(database: BingoDatabase): SampleItemDao = database.sampleItemDao()
+    fun provideBoardDao(database: BingoDatabase): BoardDao = database.boardDao()
 }

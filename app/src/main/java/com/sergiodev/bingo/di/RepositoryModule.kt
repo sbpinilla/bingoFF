@@ -1,7 +1,7 @@
 package com.sergiodev.bingo.di
 
-import com.sergiodev.bingo.data.repository.RoomSampleItemRepository
-import com.sergiodev.bingo.domain.repository.SampleItemRepository
+import com.sergiodev.bingo.data.repository.RoomBoardRepository
+import com.sergiodev.bingo.domain.repository.BoardRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -12,5 +12,5 @@ import dagger.hilt.components.SingletonComponent
 abstract class RepositoryModule {
 
     @Binds
-    abstract fun bindSampleItemRepository(impl: RoomSampleItemRepository): SampleItemRepository
+    abstract fun bindBoardRepository(impl: RoomBoardRepository): BoardRepository
 }

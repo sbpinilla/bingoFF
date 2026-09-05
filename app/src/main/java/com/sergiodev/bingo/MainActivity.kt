@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import com.sergiodev.bingo.ui.home.HomeScreen
+import com.sergiodev.bingo.ui.navigation.BingoNavHost
 import com.sergiodev.bingo.ui.theme.BingoFFTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             BingoFFTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    HomeScreen(modifier = Modifier.padding(innerPadding))
+                    BingoNavHost(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
