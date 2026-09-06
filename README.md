@@ -94,3 +94,7 @@ Este proyecto se construyó siguiendo un flujo de Spec-Driven Development (SDD):
 1. **Fundación MVVM** — ViewModel + StateFlow, Hilt y Room integrados sobre el template base de Android Studio.
 2. **Bingo game tracker** — el modelo de dominio del juego completo: cartones, modos, detección de ganador y navegación entre pantallas.
 3. **Pulido de inputs** — componentes de entrada de número compartidos y el flujo de "terminar juego".
+
+## Licencia
+
+MIT — ver [LICENSE](LICENSE).
