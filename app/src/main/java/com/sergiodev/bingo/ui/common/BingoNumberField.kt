@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -12,6 +13,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
@@ -43,17 +47,32 @@ fun BingoNumberField(
     isError: Boolean = false,
     supportingText: String? = null,
     enabled: Boolean = true,
+    focusRequester: FocusRequester? = null,
+    imeAction: ImeAction? = null,
+    onImeAction: (() -> Unit)? = null,
 ) {
+    val fieldModifier = focusRequester?.let { modifier.focusRequester(it) } ?: modifier
+    val keyboardOptions = if (imeAction == null) {
+        KeyboardOptions(keyboardType = KeyboardType.Number)
+    } else {
+        KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = imeAction)
+    }
+
     OutlinedTextField(
         value = value,
         onValueChange = { onValueChange(sanitizeNumberInput(it)) },
-        modifier = modifier,
+        modifier = fieldModifier,
         enabled = enabled,
         label = label?.let { { Text(it) } },
         isError = isError,
         supportingText = supportingText?.let { { Text(it) } },
         singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        keyboardOptions = keyboardOptions,
+        keyboardActions = if (onImeAction != null) {
+            KeyboardActions(onNext = { onImeAction() }, onDone = { onImeAction() })
+        } else {
+            KeyboardActions()
+        },
     )
 }
 
