@@ -44,8 +44,8 @@ class GamePlayViewModelTest {
         numbers = listOf(1, 2, 4, 5, 6, 21, 22, 23, 24, 25, 33, 36, 37, 38, 51, 52, 53, 54, 55, 66, 67, 68, 69, 70),
     )
 
-    private fun handle(calledNumbers: List<Int>? = null): SavedStateHandle {
-        val map = mutableMapOf<String, Any?>("mode" to GameMode.COLUMNA.name)
+    private fun handle(calledNumbers: List<Int>? = null, mode: GameMode = GameMode.COLUMNA): SavedStateHandle {
+        val map = mutableMapOf<String, Any?>("mode" to mode.name)
         if (calledNumbers != null) map["calledNumbers"] = ArrayList(calledNumbers)
         return SavedStateHandle(map)
     }
@@ -142,5 +142,42 @@ class GamePlayViewModelTest {
         val state = viewModel.uiState.value
         assertTrue(state.winners.any { it.boardId == 1L && it.patternId == "COLUMN_B" })
         assertEquals(5, state.calledCount)
+    }
+
+    @Test
+    fun columnaMode_populatesPossibleWinnersAfterThreeCalls() = runTest {
+        val repository = FakeBoardRepository(listOf(board1))
+        val viewModel = GamePlayViewModel(repository, handle(mode = GameMode.COLUMNA))
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        runCurrent()
+
+        // Call 3 of board1's B column numbers (3,7,12,14,15) -> missing 2, qualifies.
+        listOf(3, 7, 12).forEach { number ->
+            viewModel.onNumberInputChanged(number.toString())
+            runCurrent()
+            viewModel.onSubmitCall()
+            runCurrent()
+        }
+
+        val state = viewModel.uiState.value
+        assertTrue(state.possibleWinners.any { it.boardId == 1L && it.letter == BingoLetter.B })
+    }
+
+    @Test
+    fun nonColumnaMode_possibleWinnersAlwaysEmpty() = runTest {
+        val repository = FakeBoardRepository(listOf(board1))
+        val viewModel = GamePlayViewModel(repository, handle(mode = GameMode.O))
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        runCurrent()
+
+        listOf(3, 7, 12).forEach { number ->
+            viewModel.onNumberInputChanged(number.toString())
+            runCurrent()
+            viewModel.onSubmitCall()
+            runCurrent()
+        }
+
+        val state = viewModel.uiState.value
+        assertTrue(state.possibleWinners.isEmpty())
     }
 }

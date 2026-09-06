@@ -4,6 +4,7 @@ import com.sergiodev.bingo.domain.model.BingoLetter
 import com.sergiodev.bingo.domain.model.BoardCard
 import com.sergiodev.bingo.domain.model.GameMode
 import com.sergiodev.bingo.domain.model.GridPosition
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -106,5 +107,40 @@ class BingoWinCheckerTest {
         )
         assertTrue(secondWins.any { it.boardId == board2.id })
         assertFalse(secondWins.any { it.boardId == board1.id })
+    }
+
+    @Test
+    fun matchCount_zeroCalls_countsOnlyFreeCells() {
+        val columnB = GameMode.COLUMNA.patterns.first { it.id == "COLUMN_B" }
+        val columnN = GameMode.COLUMNA.patterns.first { it.id == "COLUMN_N" }
+
+        assertEquals(0, BingoWinChecker.matchCount(board1, emptySet(), columnB))
+        assertEquals(1, BingoWinChecker.matchCount(board1, emptySet(), columnN))
+    }
+
+    @Test
+    fun matchCount_partialMatches_countsCalledPlusFree() {
+        val columnN = GameMode.COLUMNA.patterns.first { it.id == "COLUMN_N" }
+        // board1's N numbers: 31, 32, 34, 35 (FREE at row 3)
+        val called = setOf(31, 32)
+
+        assertEquals(3, BingoWinChecker.matchCount(board1, called, columnN))
+    }
+
+    @Test
+    fun matchCount_fullMatch_equalsPatternSizeAndSatisfiesIsSatisfied() {
+        val columnB = GameMode.COLUMNA.patterns.first { it.id == "COLUMN_B" }
+        val called = setOf(3, 7, 12, 14, 15)
+
+        assertEquals(columnB.cells.size, BingoWinChecker.matchCount(board1, called, columnB))
+        assertTrue(BingoWinChecker.isSatisfied(board1, called, columnB))
+    }
+
+    @Test
+    fun matchCount_freeCellAlwaysCountedRegardlessOfCalledNumbers() {
+        val columnN = GameMode.COLUMNA.patterns.first { it.id == "COLUMN_N" }
+
+        assertEquals(1, BingoWinChecker.matchCount(board1, emptySet(), columnN))
+        assertEquals(1, BingoWinChecker.matchCount(board1, setOf(99), columnN))
     }
 }

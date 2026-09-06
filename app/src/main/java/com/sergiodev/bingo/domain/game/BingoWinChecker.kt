@@ -11,7 +11,15 @@ import com.sergiodev.bingo.domain.model.WinPattern
 object BingoWinChecker {
 
     fun isSatisfied(board: BoardCard, called: Set<Int>, pattern: WinPattern): Boolean =
-        pattern.cells.all { cell ->
+        matchCount(board, called, pattern) == pattern.cells.size
+
+    /**
+     * Counts how many of [pattern]'s cells are satisfied for [board]: a FREE
+     * cell (numberAt returns null) always counts, a real cell counts when its
+     * number is present in [called].
+     */
+    fun matchCount(board: BoardCard, called: Set<Int>, pattern: WinPattern): Int =
+        pattern.cells.count { cell ->
             val number = board.numberAt(cell)
             number == null || number in called
         }

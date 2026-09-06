@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sergiodev.bingo.domain.game.PredictionCandidate
 import com.sergiodev.bingo.domain.model.BingoLetter
 import com.sergiodev.bingo.ui.common.BingoNumberField
 
@@ -58,6 +59,8 @@ fun GamePlayContent(
         modifier = modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        PossibleWinnersSection(state.possibleWinners)
+
         Text("Modo: ${state.mode.name} · Llamadas: ${state.calledCount}")
 
         state.winners.forEach { win ->
@@ -101,6 +104,17 @@ fun GamePlayContent(
 
         EndGameAction(onConfirm = onEndGame)
     }
+}
+
+@Composable
+private fun PossibleWinnersSection(possibleWinners: List<PredictionCandidate>) {
+    if (possibleWinners.isEmpty()) return
+
+    Text("Posibles ganadores", style = MaterialTheme.typography.titleMedium)
+    possibleWinners.forEach { candidate ->
+        Text("Cartón ${candidate.identifier} (${candidate.letter.name})")
+    }
+    HorizontalDivider()
 }
 
 @Composable

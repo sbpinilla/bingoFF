@@ -2,15 +2,17 @@ package com.sergiodev.bingo.ui.game.setup
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.RadioButton
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -33,6 +35,7 @@ fun GameSetupScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameSetupContent(
     state: GameSetupUiState,
@@ -47,17 +50,27 @@ fun GameSetupContent(
         if (!state.hasBoards) {
             Text("Registra al menos un cartón para poder jugar")
         }
-        state.availableModes.forEach { mode ->
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            state.availableModes.forEachIndexed { index, mode ->
+                SegmentedButton(
                     selected = state.selectedMode == mode,
                     onClick = { onModeSelected(mode) },
+                    shape = SegmentedButtonDefaults.itemShape(index, state.availableModes.size),
+                    icon = {},
+                    label = { Text(mode.label(), maxLines = 1) },
                 )
-                Text(mode.name)
             }
         }
         Button(onClick = onStartGame, enabled = state.canStart) {
             Text("Jugar")
         }
     }
+}
+
+private fun GameMode.label(): String = when (this) {
+    GameMode.COLUMNA -> "Columna"
+    GameMode.O -> "O"
+    GameMode.L -> "L"
+    GameMode.I -> "I"
+    GameMode.CARTON_COMPLETO -> "Completo"
 }

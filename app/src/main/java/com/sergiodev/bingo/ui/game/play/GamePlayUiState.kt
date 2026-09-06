@@ -1,5 +1,6 @@
 package com.sergiodev.bingo.ui.game.play
 
+import com.sergiodev.bingo.domain.game.PredictionCandidate
 import com.sergiodev.bingo.domain.game.WinAnnouncement
 import com.sergiodev.bingo.domain.model.BingoLetter
 import com.sergiodev.bingo.domain.model.GameMode
@@ -13,4 +14,5 @@ data class GamePlayUiState(
     val winners: List<WinAnnouncement> = emptyList(),
     val mode: GameMode = GameMode.COLUMNA,
     val calledCount: Int = 0,
+    val possibleWinners: List<PredictionCandidate> = emptyList(),
 )

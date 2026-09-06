@@ -7,6 +7,7 @@ import com.sergiodev.bingo.domain.game.AnnouncedWin
 import com.sergiodev.bingo.domain.game.BingoWinChecker
 import com.sergiodev.bingo.domain.game.GameSession
 import com.sergiodev.bingo.domain.game.WinAnnouncement
+import com.sergiodev.bingo.domain.game.predictPossibleWinners
 import com.sergiodev.bingo.domain.model.BingoLetter
 import com.sergiodev.bingo.domain.model.BoardCard
 import com.sergiodev.bingo.domain.model.GameMode
@@ -59,6 +60,7 @@ class GamePlayViewModel @Inject constructor(
             winners = session.winners,
             mode = mode,
             calledCount = called.size,
+            possibleWinners = predictPossibleWinners(mode, boards, called.toSet(), session.announced),
         )
     }.stateIn(
         scope = viewModelScope,
