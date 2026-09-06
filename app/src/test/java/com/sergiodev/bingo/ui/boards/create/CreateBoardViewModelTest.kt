@@ -123,6 +123,84 @@ class CreateBoardViewModelTest {
         )
     }
 
+    @Test
+    fun correctingOneField_keepsOtherFieldsRedBorder() = runTest {
+        val repository = FakeBoardRepository()
+        val viewModel = CreateBoardViewModel(repository)
+
+        viewModel.onIdentifierChange("Casa1")
+        val numbers = validNumbers().toMutableMap()
+        numbers[BingoLetter.B] = listOf("16", "2", "3", "4", "5") // 16 out of B's 1-15 range
+        numbers[BingoLetter.G] = listOf("99", "47", "48", "49", "50") // 99 out of G's range
+        numbers.forEach { (letter, values) ->
+            values.forEachIndexed { index, value -> viewModel.onNumberChange(letter, index, value) }
+        }
+        viewModel.onSubmit()
+        runCurrent()
+
+        val stateAfterSubmit = viewModel.uiState.value
+        assertNotNull(stateAfterSubmit.fieldErrors[BingoLetter.B]?.get(0))
+        assertNotNull(stateAfterSubmit.fieldErrors[BingoLetter.G]?.get(0))
+
+        viewModel.onNumberChange(BingoLetter.B, 0, "1")
+
+        val stateAfterFix = viewModel.uiState.value
+        assertNull(stateAfterFix.fieldErrors[BingoLetter.B]?.get(0))
+        assertNotNull(stateAfterFix.fieldErrors[BingoLetter.G]?.get(0))
+    }
+
+    @Test
+    fun fixingDuplicate_clearsBothSidesRedBorder() = runTest {
+        val repository = FakeBoardRepository()
+        val viewModel = CreateBoardViewModel(repository)
+
+        viewModel.onIdentifierChange("Casa1")
+        val numbers = validNumbers().toMutableMap()
+        numbers[BingoLetter.B] = listOf("5", "5", "3", "4", "2") // B[0] duplicates B[1]
+        numbers[BingoLetter.G] = listOf("99", "47", "48", "49", "50") // sentinel: unrelated, out of range
+        numbers.forEach { (letter, values) ->
+            values.forEachIndexed { index, value -> viewModel.onNumberChange(letter, index, value) }
+        }
+        viewModel.onSubmit()
+        runCurrent()
+
+        val stateAfterSubmit = viewModel.uiState.value
+        assertNotNull(stateAfterSubmit.fieldErrors[BingoLetter.B]?.get(0))
+        assertNotNull(stateAfterSubmit.fieldErrors[BingoLetter.B]?.get(1))
+        assertNotNull(stateAfterSubmit.fieldErrors[BingoLetter.G]?.get(0))
+
+        viewModel.onNumberChange(BingoLetter.B, 1, "9")
+
+        val stateAfterFix = viewModel.uiState.value
+        assertNull(stateAfterFix.fieldErrors[BingoLetter.B]?.get(0))
+        assertNull(stateAfterFix.fieldErrors[BingoLetter.B]?.get(1))
+        assertNotNull(stateAfterFix.fieldErrors[BingoLetter.G]?.get(0))
+    }
+
+    @Test
+    fun blankFieldDuringCorrection_isNotFlaggedInvalid() = runTest {
+        val repository = FakeBoardRepository()
+        val viewModel = CreateBoardViewModel(repository)
+
+        viewModel.onIdentifierChange("Casa1")
+        val numbers = validNumbers().toMutableMap()
+        numbers[BingoLetter.B] = listOf("16", "2", "3", "4", "5") // out of range triggers a failed submit
+        numbers[BingoLetter.G] = listOf("99", "47", "48", "49", "50") // sentinel: unrelated, out of range
+        numbers.forEach { (letter, values) ->
+            values.forEachIndexed { index, value -> viewModel.onNumberChange(letter, index, value) }
+        }
+        viewModel.onSubmit()
+        runCurrent()
+
+        assertNotNull(viewModel.uiState.value.fieldErrors[BingoLetter.B]?.get(0))
+        assertNotNull(viewModel.uiState.value.fieldErrors[BingoLetter.G]?.get(0))
+
+        viewModel.onNumberChange(BingoLetter.B, 0, "")
+
+        assertNull(viewModel.uiState.value.fieldErrors[BingoLetter.B]?.get(0))
+        assertNotNull(viewModel.uiState.value.fieldErrors[BingoLetter.G]?.get(0))
+    }
+
     companion object {
         private fun assertEquals(expected: Any?, actual: Any?) = org.junit.Assert.assertEquals(expected, actual)
     }

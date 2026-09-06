@@ -2,7 +2,6 @@ package com.sergiodev.bingo.ui.boards.list
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,9 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sergiodev.bingo.domain.model.BingoLetter
 import com.sergiodev.bingo.domain.model.BoardCard
-import com.sergiodev.bingo.domain.model.GridPosition
+import com.sergiodev.bingo.ui.common.BingoGridDisplay
 
 @Composable
 fun BoardListScreen(
@@ -101,13 +99,6 @@ private fun BoardCardItem(board: BoardCard) {
             text = "#${board.id} · ${board.identifier}",
             fontWeight = FontWeight.Bold,
         )
-        (1..5).forEach { row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                BingoLetter.entries.forEach { letter ->
-                    val number = board.numberAt(GridPosition(letter, row))
-                    Text(text = number?.toString() ?: "FREE")
-                }
-            }
-        }
+        BingoGridDisplay(board = board)
     }
 }
