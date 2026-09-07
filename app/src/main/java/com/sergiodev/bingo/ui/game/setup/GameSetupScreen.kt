@@ -2,14 +2,16 @@ package com.sergiodev.bingo.ui.game.setup
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sergiodev.bingo.domain.model.GameMode
+import com.sergiodev.bingo.ui.theme.OnSuccess
+import com.sergiodev.bingo.ui.theme.Success
 
 @Composable
 fun GameSetupScreen(
@@ -35,7 +39,6 @@ fun GameSetupScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameSetupContent(
     state: GameSetupUiState,
@@ -50,14 +53,26 @@ fun GameSetupContent(
         if (!state.hasBoards) {
             Text("Registra al menos un cartón para poder jugar")
         }
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            state.availableModes.forEachIndexed { index, mode ->
-                SegmentedButton(
-                    selected = state.selectedMode == mode,
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            state.availableModes.forEach { mode ->
+                val selected = state.selectedMode == mode
+                FilterChip(
+                    selected = selected,
                     onClick = { onModeSelected(mode) },
-                    shape = SegmentedButtonDefaults.itemShape(index, state.availableModes.size),
-                    icon = {},
                     label = { Text(mode.label(), maxLines = 1) },
+                    leadingIcon = if (selected) {
+                        { Icon(Icons.Default.Check, contentDescription = null) }
+                    } else {
+                        null
+                    },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Success,
+                        selectedLabelColor = OnSuccess,
+                        selectedLeadingIconColor = OnSuccess,
+                    ),
                 )
             }
         }
