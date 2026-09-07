@@ -43,16 +43,20 @@ class GameSetupViewModelTest {
     }
 
     @Test
-    fun startAllowed_withAtLeastOneBoardAndOneModeSelected() = runTest {
+    fun startAllowed_withAtLeastOneBoardAndColumnaPreselected() = runTest {
         val repository = FakeBoardRepository()
         val viewModel = GameSetupViewModel(repository)
         backgroundScope.launch { viewModel.uiState.collect {} }
         runCurrent()
 
+        assertFalse(viewModel.uiState.value.canStart)
+
         repository.boards.value = listOf(BoardCard(id = 1L, identifier = "Casa1", numbers = List(24) { it + 1 }))
         runCurrent()
 
-        assertFalse(viewModel.uiState.value.canStart)
+        // COLUMNA is preselected by default, so registering a board alone is enough to start.
+        assertTrue(viewModel.uiState.value.canStart)
+        assertEquals(GameMode.COLUMNA, viewModel.uiState.value.selectedMode)
 
         viewModel.onModeSelected(GameMode.O)
         runCurrent()
@@ -65,5 +69,11 @@ class GameSetupViewModelTest {
     fun exposesAllFiveModes() = runTest {
         val viewModel = GameSetupViewModel(FakeBoardRepository())
         assertEquals(GameMode.entries.toList(), viewModel.uiState.value.availableModes)
+    }
+
+    @Test
+    fun columnaPreselected_byDefault() = runTest {
+        val viewModel = GameSetupViewModel(FakeBoardRepository())
+        assertEquals(GameMode.COLUMNA, viewModel.uiState.value.selectedMode)
     }
 }

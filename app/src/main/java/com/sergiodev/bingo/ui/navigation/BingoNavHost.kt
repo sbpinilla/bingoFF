@@ -36,6 +36,7 @@ fun BingoNavHost(
         composable(BingoRoute.GAME_SETUP) {
             GameSetupScreen(
                 onStartGame = { mode -> navController.navigate(BingoRoute.gamePlay(mode.name)) },
+                onNavigateBack = { navController.popBackStack() },
             )
         }
         composable(
@@ -44,6 +45,7 @@ fun BingoNavHost(
         ) {
             GamePlayScreen(
                 onEndGame = { navController.popBackStack(BingoRoute.BOARD_LIST, inclusive = false) },
+                onNavigateBack = { navController.popBackStack() },
             )
         }
     }

@@ -17,7 +17,7 @@ class GameSetupViewModel @Inject constructor(
     repository: BoardRepository,
 ) : ViewModel() {
 
-    private val selectedMode = MutableStateFlow<GameMode?>(null)
+    private val selectedMode = MutableStateFlow<GameMode?>(GameMode.COLUMNA)
 
     val uiState: StateFlow<GameSetupUiState> = combine(
         repository.observeBoards(),
@@ -27,7 +27,7 @@ class GameSetupViewModel @Inject constructor(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = GameSetupUiState(),
+        initialValue = GameSetupUiState(selectedMode = GameMode.COLUMNA),
     )
 
     fun onModeSelected(mode: GameMode) {

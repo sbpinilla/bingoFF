@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
@@ -83,22 +84,28 @@ fun BoardListContent(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            Icons.Default.Settings,
-                            contentDescription = "Configuración",
-                        )
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        IconButton(onClick = {}) {
+                            Icon(Icons.Default.Settings, contentDescription = null)
+                        }
+                        Text("Configuración", style = MaterialTheme.typography.labelSmall)
                     }
-                    FilledIconButton(
-                        onClick = onStartGame,
-                        colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                        ),
-                    ) {
-                        Icon(Icons.Default.PlayArrow, contentDescription = "Jugar")
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        FilledIconButton(
+                            onClick = onStartGame,
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                            ),
+                        ) {
+                            Icon(Icons.Default.PlayArrow, contentDescription = null)
+                        }
+                        Text("Jugar", style = MaterialTheme.typography.labelSmall)
                     }
-                    IconButton(onClick = onCreateBoard) {
-                        Icon(Icons.Default.Add, contentDescription = "Agregar")
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        IconButton(onClick = onCreateBoard) {
+                            Icon(Icons.Default.Add, contentDescription = null)
+                        }
+                        Text("Agregar", style = MaterialTheme.typography.labelSmall)
                     }
                 }
             }
