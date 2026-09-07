@@ -1,5 +1,6 @@
 package com.sergiodev.bingo.ui.game.play
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -55,8 +59,16 @@ fun GamePlayContent(
     onEndGame: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Column(
-        modifier = modifier.fillMaxSize().padding(16.dp),
+        modifier = modifier.fillMaxSize().padding(16.dp).pointerInput(Unit) {
+            detectTapGestures(onTap = {
+                focusManager.clearFocus()
+                keyboardController?.hide()
+            })
+        },
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         PossibleWinnersSection(state.possibleWinners)

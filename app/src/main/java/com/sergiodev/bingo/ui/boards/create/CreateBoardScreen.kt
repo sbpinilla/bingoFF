@@ -1,5 +1,6 @@
 package com.sergiodev.bingo.ui.boards.create
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,7 +20,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -74,9 +77,16 @@ fun CreateBoardContent(
 ) {
     val focusRequesters = remember { List(24) { FocusRequester() } }
     val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
-        modifier = modifier.fillMaxSize().imePadding().padding(16.dp).verticalScroll(rememberScrollState()),
+        modifier = modifier.fillMaxSize().imePadding().padding(16.dp).verticalScroll(rememberScrollState())
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus()
+                    keyboardController?.hide()
+                })
+            },
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         OutlinedTextField(

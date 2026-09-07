@@ -164,6 +164,28 @@ class GamePlayViewModelTest {
     }
 
     @Test
+    fun duplicateNumber_rejectedWithErrorAndStateUnchanged() = runTest {
+        val viewModel = GamePlayViewModel(FakeBoardRepository(listOf(board1)), handle())
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        runCurrent()
+
+        viewModel.onNumberInputChanged("7")
+        runCurrent()
+        viewModel.onSubmitCall()
+        runCurrent()
+
+        viewModel.onNumberInputChanged("7")
+        runCurrent()
+        viewModel.onSubmitCall()
+        runCurrent()
+
+        val state = viewModel.uiState.value
+        assertEquals("Número ya cantado", state.inputError)
+        assertEquals(1, state.calledCount)
+        assertEquals(listOf(7), state.callsByLetter[BingoLetter.B])
+    }
+
+    @Test
     fun nonColumnaMode_possibleWinnersAlwaysEmpty() = runTest {
         val repository = FakeBoardRepository(listOf(board1))
         val viewModel = GamePlayViewModel(repository, handle(mode = GameMode.O))

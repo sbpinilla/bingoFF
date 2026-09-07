@@ -80,7 +80,7 @@ fun BoardListContent(
 
             // LazyColumn supports an arbitrary number of boards — no hardcoded cap.
             LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 items(state.boards) { board ->

@@ -105,6 +105,11 @@ class GamePlayViewModel @Inject constructor(
             return
         }
 
+        if (number in calledNumbers.value) {
+            pending.update { it.copy(error = "Número ya cantado") }
+            return
+        }
+
         val updated = calledNumbers.value + number
         calledNumbers.value = updated
         savedStateHandle[KEY_CALLED_NUMBERS] = ArrayList(updated)
