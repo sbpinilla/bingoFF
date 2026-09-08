@@ -10,7 +10,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.sergiodev.bingo.ui.boards.create.CreateBoardScreen
+import com.sergiodev.bingo.ui.boards.importexport.ImportBoardsScreen
 import com.sergiodev.bingo.ui.boards.list.BoardListScreen
+import com.sergiodev.bingo.ui.boards.settings.SettingsScreen
 import com.sergiodev.bingo.ui.game.play.GamePlayScreen
 import com.sergiodev.bingo.ui.game.setup.GameSetupScreen
 
@@ -28,10 +30,20 @@ fun BingoNavHost(
             BoardListScreen(
                 onCreateBoard = { navController.navigate(BingoRoute.CREATE_BOARD) },
                 onStartGame = { navController.navigate(BingoRoute.GAME_SETUP) },
+                onNavigateToSettings = { navController.navigate(BingoRoute.SETTINGS) },
             )
         }
         composable(BingoRoute.CREATE_BOARD) {
             CreateBoardScreen(onBoardCreated = { navController.popBackStack() })
+        }
+        composable(BingoRoute.SETTINGS) {
+            SettingsScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToImport = { navController.navigate(BingoRoute.IMPORT_BOARDS) },
+            )
+        }
+        composable(BingoRoute.IMPORT_BOARDS) {
+            ImportBoardsScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(BingoRoute.GAME_SETUP) {
             GameSetupScreen(

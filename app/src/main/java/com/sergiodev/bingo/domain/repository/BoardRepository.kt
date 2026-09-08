@@ -16,4 +16,15 @@ interface BoardRepository {
      * exists (unique-identifier conflict).
      */
     suspend fun addBoard(identifier: String, numbers: List<Int>): Result<Unit>
+
+    /**
+     * Imports [boards], silently skipping any entry whose [BoardCard.id]
+     * already exists, whose [BoardCard.identifier] already exists under a
+     * different id, or that duplicates an earlier entry within [boards]
+     * itself. Surviving entries are inserted preserving their original id.
+     */
+    suspend fun importBoards(boards: List<BoardCard>): ImportResult
 }
+
+/** Result of [BoardRepository.importBoards]: how many entries were inserted vs. skipped. */
+data class ImportResult(val imported: Int, val skipped: Int)

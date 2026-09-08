@@ -4,6 +4,7 @@ import com.sergiodev.bingo.MainDispatcherRule
 import com.sergiodev.bingo.domain.model.BoardCard
 import com.sergiodev.bingo.domain.model.GameMode
 import com.sergiodev.bingo.domain.repository.BoardRepository
+import com.sergiodev.bingo.domain.repository.ImportResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +28,8 @@ class GameSetupViewModelTest {
         override fun observeBoards(): Flow<List<BoardCard>> = boards
         override suspend fun addBoard(identifier: String, numbers: List<Int>): Result<Unit> =
             Result.success(Unit)
+        override suspend fun importBoards(boards: List<BoardCard>): ImportResult =
+            ImportResult(imported = 0, skipped = 0)
     }
 
     @Test

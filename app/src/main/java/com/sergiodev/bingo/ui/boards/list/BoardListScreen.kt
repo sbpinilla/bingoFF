@@ -45,6 +45,7 @@ import com.sergiodev.bingo.ui.common.EmptyState
 fun BoardListScreen(
     onCreateBoard: () -> Unit,
     onStartGame: () -> Unit,
+    onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: BoardListViewModel = hiltViewModel(),
 ) {
@@ -54,6 +55,7 @@ fun BoardListScreen(
         state = state,
         onCreateBoard = onCreateBoard,
         onStartGame = onStartGame,
+        onNavigateToSettings = onNavigateToSettings,
         modifier = modifier,
     )
 }
@@ -64,6 +66,7 @@ fun BoardListContent(
     state: BoardListUiState,
     onCreateBoard: () -> Unit,
     onStartGame: () -> Unit,
+    onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -85,7 +88,7 @@ fun BoardListContent(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        IconButton(onClick = {}) {
+                        IconButton(onClick = onNavigateToSettings) {
                             Icon(Icons.Default.Settings, contentDescription = null)
                         }
                         Text("Configuración", style = MaterialTheme.typography.labelSmall)

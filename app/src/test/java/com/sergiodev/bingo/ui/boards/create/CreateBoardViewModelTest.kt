@@ -4,6 +4,7 @@ import com.sergiodev.bingo.MainDispatcherRule
 import com.sergiodev.bingo.domain.model.BingoLetter
 import com.sergiodev.bingo.domain.model.BoardCard
 import com.sergiodev.bingo.domain.repository.BoardRepository
+import com.sergiodev.bingo.domain.repository.ImportResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,6 +36,9 @@ class CreateBoardViewModelTest {
             lastAdded = identifier to numbers
             return Result.success(Unit)
         }
+
+        override suspend fun importBoards(boards: List<BoardCard>): ImportResult =
+            ImportResult(imported = 0, skipped = 0)
     }
 
     private fun validNumbers(): Map<BingoLetter, List<String>> = mapOf(

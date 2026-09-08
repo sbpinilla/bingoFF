@@ -19,4 +19,20 @@ interface BoardDao {
      */
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(board: BoardEntity): Long
+
+    @Query("SELECT id FROM board")
+    suspend fun getAllIds(): List<Long>
+
+    @Query("SELECT identifier FROM board")
+    suspend fun getAllIdentifiers(): List<String>
+
+    /**
+     * Bulk insert used by import. Entities may carry an explicit non-zero
+     * [BoardEntity.id]: Room only omits the PK column from the generated
+     * INSERT when the value is exactly `0`, so a non-zero id is inserted
+     * literally and [OnConflictStrategy.ABORT] still throws on a real
+     * collision instead of silently overwriting.
+     */
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertAll(boards: List<BoardEntity>)
 }

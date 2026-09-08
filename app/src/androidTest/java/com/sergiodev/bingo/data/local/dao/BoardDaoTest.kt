@@ -84,4 +84,27 @@ class BoardDaoTest {
         assertEquals(twentyFourNumbers, deserialized)
         assertTrue(deserialized.size == 24)
     }
+
+    @Test
+    fun insertAll_explicitNonZeroPrimaryKey_survivesUnchanged() = runTest {
+        dao.insertAll(
+            listOf(
+                BoardEntity(id = 50, identifier = "Casa50", numbers = twentyFourNumbers),
+                BoardEntity(id = 51, identifier = "Casa51", numbers = twentyFourNumbers),
+            ),
+        )
+
+        val boards = dao.observeAll().first()
+
+        assertEquals(setOf(50L, 51L), boards.map { it.id }.toSet())
+    }
+
+    @Test
+    fun insertAfterInsertAllWithExplicitPk_autoincrementsPastImportedMaxId() = runTest {
+        dao.insertAll(listOf(BoardEntity(id = 50, identifier = "Casa50", numbers = twentyFourNumbers)))
+
+        val newId = dao.insert(BoardEntity(identifier = "CasaNueva", numbers = twentyFourNumbers))
+
+        assertTrue(newId > 50)
+    }
 }
