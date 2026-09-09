@@ -35,19 +35,146 @@ class WinPredictionTest {
     )
 
     @Test
-    fun nonColumnaModes_alwaysReturnEmpty_regardlessOfProgressOrCallCount() {
-        val boards = listOf(board1)
-        // board1 nearly completes each non-Columna pattern with very few total calls.
-        val nearlyAllNumbers = board1.numbers.dropLast(1).toSet()
+    fun oLIModes_missingThreeOrLess_isIncluded() {
+        listOf(GameMode.O, GameMode.L, GameMode.I).forEach { mode ->
+            val pattern = mode.patterns.single()
+            val realCells = pattern.cells.mapNotNull { board1.numberAt(it) }
+            // Leave exactly 3 real cells uncalled -> missing == 3, at the qualifying threshold.
+            val called = realCells.drop(3).toSet()
 
-        listOf(GameMode.O, GameMode.L, GameMode.I, GameMode.CARTON_COMPLETO).forEach { mode ->
             val result = predictPossibleWinners(
                 mode = mode,
-                boards = boards,
-                called = nearlyAllNumbers,
+                boards = listOf(board1),
+                called = called,
                 announced = emptySet(),
             )
-            assertTrue("mode=$mode should be empty", result.isEmpty())
+
+            assertTrue(
+                "mode=$mode should include board1 at missing==3",
+                result.any { it.boardId == board1.id && it.missing == 3 },
+            )
+        }
+    }
+
+    @Test
+    fun oLIModes_missingFour_isExcluded() {
+        listOf(GameMode.O, GameMode.L, GameMode.I).forEach { mode ->
+            val pattern = mode.patterns.single()
+            val realCells = pattern.cells.mapNotNull { board1.numberAt(it) }
+            // Leave exactly 4 real cells uncalled -> missing == 4, past the qualifying threshold.
+            val called = realCells.drop(4).toSet()
+
+            val result = predictPossibleWinners(
+                mode = mode,
+                boards = listOf(board1),
+                called = called,
+                announced = emptySet(),
+            )
+
+            assertTrue(
+                "mode=$mode should exclude board1 at missing==4",
+                result.none { it.boardId == board1.id },
+            )
+        }
+    }
+
+    @Test
+    fun cartonCompleto_missingTenOrLess_isIncluded() {
+        val pattern = GameMode.CARTON_COMPLETO.patterns.single()
+        val realCells = pattern.cells.mapNotNull { board1.numberAt(it) }
+        // Leave exactly 10 real cells uncalled -> missing == 10, at the qualifying threshold.
+        val called = realCells.drop(10).toSet()
+
+        val result = predictPossibleWinners(
+            mode = GameMode.CARTON_COMPLETO,
+            boards = listOf(board1),
+            called = called,
+            announced = emptySet(),
+        )
+
+        assertTrue(result.any { it.boardId == board1.id && it.missing == 10 })
+    }
+
+    @Test
+    fun cartonCompleto_missingEleven_isExcluded() {
+        val pattern = GameMode.CARTON_COMPLETO.patterns.single()
+        val realCells = pattern.cells.mapNotNull { board1.numberAt(it) }
+        // Leave exactly 11 real cells uncalled -> missing == 11, past the qualifying threshold.
+        val called = realCells.drop(11).toSet()
+
+        val result = predictPossibleWinners(
+            mode = GameMode.CARTON_COMPLETO,
+            boards = listOf(board1),
+            called = called,
+            announced = emptySet(),
+        )
+
+        assertTrue(result.none { it.boardId == board1.id })
+    }
+
+    @Test
+    fun oLIAndCompleto_noCallCountCeiling_stillIncludedAtHighCallCount() {
+        listOf(GameMode.O, GameMode.L, GameMode.I, GameMode.CARTON_COMPLETO).forEach { mode ->
+            val pattern = mode.patterns.single()
+            val realCells = pattern.cells.mapNotNull { board1.numberAt(it) }
+            val threshold = if (mode == GameMode.CARTON_COMPLETO) 10 else 3
+            // Leave exactly `threshold` real cells uncalled, then pad with unrelated
+            // numbers so total distinct calls exceeds MAX_PREDICTION_CALLS (Columna-only ceiling).
+            val patternCalls = realCells.drop(threshold).toSet()
+            val padding = (200 until 200 + MAX_PREDICTION_CALLS + 5).toSet()
+            val called = patternCalls + padding
+
+            val result = predictPossibleWinners(
+                mode = mode,
+                boards = listOf(board1),
+                called = called,
+                announced = emptySet(),
+            )
+
+            assertTrue("padding must push calls past the Columna-only ceiling", called.size > MAX_PREDICTION_CALLS)
+            assertTrue(
+                "mode=$mode should still qualify past MAX_PREDICTION_CALLS, since only Columna has a ceiling",
+                result.any { it.boardId == board1.id && it.missing == threshold },
+            )
+        }
+    }
+
+    @Test
+    fun nonColumnaModes_alreadyAnnouncedPair_isExcludedEvenIfStillQualifying() {
+        listOf(GameMode.O, GameMode.L, GameMode.I, GameMode.CARTON_COMPLETO).forEach { mode ->
+            val pattern = mode.patterns.single()
+            val called = pattern.cells.mapNotNull { board1.numberAt(it) }.toSet() // fully completes the pattern
+            val announced = setOf(AnnouncedWin(board1.id, pattern.id))
+
+            val result = predictPossibleWinners(
+                mode = mode,
+                boards = listOf(board1),
+                called = called,
+                announced = announced,
+            )
+
+            assertTrue(
+                "mode=$mode already-announced pair must be excluded even if still qualifying",
+                result.none { it.boardId == board1.id },
+            )
+        }
+    }
+
+    @Test
+    fun nonColumnaCandidate_hasNullLetter() {
+        listOf(GameMode.O, GameMode.L, GameMode.I, GameMode.CARTON_COMPLETO).forEach { mode ->
+            val pattern = mode.patterns.single()
+            val called = pattern.cells.mapNotNull { board1.numberAt(it) }.toSet() // fully qualifies
+
+            val result = predictPossibleWinners(
+                mode = mode,
+                boards = listOf(board1),
+                called = called,
+                announced = emptySet(),
+            )
+
+            assertTrue("mode=$mode should produce a candidate", result.isNotEmpty())
+            assertTrue("mode=$mode candidate letter must be null", result.all { it.letter == null })
         }
     }
 

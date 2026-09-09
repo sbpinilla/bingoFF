@@ -74,6 +74,26 @@ class BingoWinCheckerTest {
     }
 
     @Test
+    fun lMode_requiresAllNineCells() {
+        val lPattern = GameMode.L.patterns.first()
+        val realCells = lPattern.cells.mapNotNull { board1.numberAt(it) }.toSet()
+        val allButOne = realCells.toList().dropLast(1).toSet()
+
+        assertFalse(BingoWinChecker.isSatisfied(board1, allButOne, lPattern))
+        assertTrue(BingoWinChecker.isSatisfied(board1, realCells, lPattern))
+    }
+
+    @Test
+    fun iMode_freeCellCountsButAllTwelveRealCellsStillRequired() {
+        val iPattern = GameMode.I.patterns.first()
+        val realCells = iPattern.cells.mapNotNull { board1.numberAt(it) }.toSet()
+        val allButOne = realCells.toList().dropLast(1).toSet()
+
+        assertFalse(BingoWinChecker.isSatisfied(board1, allButOne, iPattern))
+        assertTrue(BingoWinChecker.isSatisfied(board1, realCells, iPattern))
+    }
+
+    @Test
     fun newWins_announcesEachNewlyCompletingBoardOncePerPattern() {
         val boards = listOf(board1, board2)
         val calledAfterBoard1Wins = board1.numbers.toSet()

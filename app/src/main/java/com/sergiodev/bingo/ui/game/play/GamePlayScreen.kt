@@ -152,7 +152,8 @@ private fun PossibleWinnersSection(possibleWinners: List<PredictionCandidate>) {
 
     Text("Posibles ganadores", style = MaterialTheme.typography.titleMedium)
     possibleWinners.forEach { candidate ->
-        Text("Cartón ${candidate.identifier} (${candidate.letter.name})")
+        val suffix = candidate.letter?.let { " (${it.name})" }.orEmpty()
+        Text("Cartón ${candidate.identifier}$suffix")
     }
     HorizontalDivider()
 }
