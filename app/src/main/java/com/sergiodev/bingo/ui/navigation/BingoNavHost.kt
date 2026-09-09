@@ -13,6 +13,7 @@ import com.sergiodev.bingo.ui.boards.create.CreateBoardScreen
 import com.sergiodev.bingo.ui.boards.importexport.ImportBoardsScreen
 import com.sergiodev.bingo.ui.boards.list.BoardListScreen
 import com.sergiodev.bingo.ui.boards.settings.SettingsScreen
+import com.sergiodev.bingo.ui.boards.theme.ThemeScreen
 import com.sergiodev.bingo.ui.game.play.GamePlayScreen
 import com.sergiodev.bingo.ui.game.setup.GameSetupScreen
 
@@ -39,8 +40,12 @@ fun BingoNavHost(
         composable(BingoRoute.SETTINGS) {
             SettingsScreen(
                 onNavigateBack = { navController.popBackStack() },
+                onNavigateToTheme = { navController.navigate(BingoRoute.THEME) },
                 onNavigateToImport = { navController.navigate(BingoRoute.IMPORT_BOARDS) },
             )
+        }
+        composable(BingoRoute.THEME) {
+            ThemeScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(BingoRoute.IMPORT_BOARDS) {
             ImportBoardsScreen(onNavigateBack = { navController.popBackStack() })

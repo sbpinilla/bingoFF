@@ -13,6 +13,7 @@ object BingoRoute {
     const val GAME_PLAY_PATTERN = "gamePlay/{$GAME_PLAY_ARG}"
     const val SETTINGS = "settings"
     const val IMPORT_BOARDS = "importBoards"
+    const val THEME = "theme"
 
     fun gamePlay(mode: String) = "gamePlay/$mode"
 }
