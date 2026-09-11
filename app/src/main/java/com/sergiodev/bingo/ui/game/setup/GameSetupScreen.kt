@@ -107,7 +107,11 @@ fun GameSetupContent(
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                 )
             }
-            Button(onClick = onStartGame, enabled = state.canStart) {
+            Button(
+                onClick = onStartGame,
+                enabled = state.canStart,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 Text("Jugar")
             }
         }
