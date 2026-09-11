@@ -60,8 +60,9 @@ fun ImportBoardsContent(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(state.resultMessage) {
-        state.resultMessage?.let {
+    val resultMessage = state.resultSummary?.toMessage()
+    LaunchedEffect(state.resultSummary) {
+        resultMessage?.let {
             snackbarHostState.showSnackbar(it)
             onResultMessageShown()
         }
@@ -95,7 +96,7 @@ fun ImportBoardsContent(
                 onValueChange = onJsonTextChange,
                 label = { Text(stringResource(R.string.import_boards_json_label)) },
                 isError = state.jsonError != null,
-                supportingText = { state.jsonError?.let { Text(it) } },
+                supportingText = { state.jsonError?.let { Text(it.toMessage()) } },
                 modifier = Modifier.fillMaxWidth().height(240.dp),
             )
             Button(onClick = onSubmit) {
@@ -104,3 +105,13 @@ fun ImportBoardsContent(
         }
     }
 }
+
+@Composable
+private fun ImportBoardsErrorReason.toMessage(): String = when (this) {
+    ImportBoardsErrorReason.BlankInput -> stringResource(R.string.import_boards_error_blank_input)
+    ImportBoardsErrorReason.InvalidJson -> stringResource(R.string.import_boards_error_invalid_json)
+}
+
+@Composable
+private fun ImportResultSummary.toMessage(): String =
+    stringResource(R.string.import_result_message, imported, skipped)

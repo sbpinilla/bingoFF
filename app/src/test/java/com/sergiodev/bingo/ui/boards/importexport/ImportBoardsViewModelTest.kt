@@ -83,6 +83,6 @@ class ImportBoardsViewModelTest {
         assertNull(state.jsonError)
         assertEquals("", state.jsonText)
         assertEquals(listOf(board), repository.lastImported)
-        assertEquals("1 importados, 1 omitidos", state.resultMessage)
+        assertEquals(ImportResultSummary(imported = 1, skipped = 1), state.resultSummary)
     }
 }

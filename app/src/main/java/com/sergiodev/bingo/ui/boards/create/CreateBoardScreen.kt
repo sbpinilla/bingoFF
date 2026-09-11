@@ -96,7 +96,7 @@ fun CreateBoardContent(
             onValueChange = onIdentifierChange,
             label = { Text(stringResource(R.string.create_board_identifier_label)) },
             isError = state.identifierError != null,
-            supportingText = { state.identifierError?.let { Text(it) } },
+            supportingText = { state.identifierError?.let { Text(it.toMessage()) } },
             modifier = Modifier.fillMaxWidth(),
         )
         BingoLetter.entries.forEach { letter ->
@@ -137,4 +137,10 @@ fun CreateBoardContent(
             Text(stringResource(R.string.create_board_save_button))
         }
     }
+}
+
+@Composable
+private fun CreateBoardErrorReason.toMessage(): String = when (this) {
+    CreateBoardErrorReason.BlankIdentifier -> stringResource(R.string.create_board_error_blank_identifier)
+    CreateBoardErrorReason.DuplicateIdentifier -> stringResource(R.string.create_board_error_duplicate_identifier)
 }

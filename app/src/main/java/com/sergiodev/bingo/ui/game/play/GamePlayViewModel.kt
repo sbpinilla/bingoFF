@@ -28,7 +28,7 @@ private data class PendingEntry(
     val numberInput: String = "",
     val selectedLetter: BingoLetter? = null,
     val overridden: Boolean = false,
-    val error: String? = null,
+    val error: GamePlayInputErrorReason? = null,
 )
 
 @HiltViewModel
@@ -95,18 +95,18 @@ class GamePlayViewModel @Inject constructor(
         val derivedLetter = number?.let(BingoLetter::fromNumber)
 
         if (number == null || derivedLetter == null) {
-            pending.update { it.copy(error = "Número inválido (1-75)") }
+            pending.update { it.copy(error = GamePlayInputErrorReason.InvalidNumber) }
             return
         }
 
         val confirmedLetter = current.selectedLetter ?: derivedLetter
         if (confirmedLetter != derivedLetter) {
-            pending.update { it.copy(error = "La letra seleccionada no corresponde a ese número") }
+            pending.update { it.copy(error = GamePlayInputErrorReason.LetterMismatch) }
             return
         }
 
         if (number in calledNumbers.value) {
-            pending.update { it.copy(error = "Número ya cantado") }
+            pending.update { it.copy(error = GamePlayInputErrorReason.DuplicateCall) }
             return
         }
 

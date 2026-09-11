@@ -125,7 +125,7 @@ fun GamePlayContent(
                 onValueChange = onNumberInputChanged,
                 label = stringResource(R.string.game_play_number_label),
                 isError = state.inputError != null,
-                supportingText = state.inputError,
+                supportingText = state.inputError?.toMessage(),
                 modifier = Modifier.fillMaxWidth(),
             )
 
@@ -210,4 +210,11 @@ private fun EndGameAction(onConfirm: () -> Unit) {
             },
         )
     }
+}
+
+@Composable
+private fun GamePlayInputErrorReason.toMessage(): String = when (this) {
+    GamePlayInputErrorReason.InvalidNumber -> stringResource(R.string.game_play_error_invalid_number)
+    GamePlayInputErrorReason.LetterMismatch -> stringResource(R.string.game_play_error_letter_mismatch)
+    GamePlayInputErrorReason.DuplicateCall -> stringResource(R.string.game_play_error_duplicate_call)
 }

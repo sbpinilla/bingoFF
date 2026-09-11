@@ -10,7 +10,7 @@ data class CreateBoardUiState(
     val identifier: String = "",
     val numbers: Map<BingoLetter, List<String>> = defaultNumbers(),
     val fieldErrors: Map<BingoLetter, List<String?>> = emptyMap(),
-    val identifierError: String? = null,
+    val identifierError: CreateBoardErrorReason? = null,
     val submitSuccess: Boolean = false,
 ) {
     companion object {
@@ -19,4 +19,13 @@ data class CreateBoardUiState(
                 List(if (letter == BingoLetter.N) 4 else 5) { "" }
             }
     }
+}
+
+/**
+ * Reasons `CreateBoardViewModel.onSubmit()` can block board creation with.
+ * The Composable layer resolves each case to display text via `stringResource()`.
+ */
+sealed interface CreateBoardErrorReason {
+    data object BlankIdentifier : CreateBoardErrorReason
+    data object DuplicateIdentifier : CreateBoardErrorReason
 }

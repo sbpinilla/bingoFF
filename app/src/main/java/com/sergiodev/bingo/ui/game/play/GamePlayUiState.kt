@@ -9,10 +9,20 @@ data class GamePlayUiState(
     val numberInput: String = "",
     val selectedLetter: BingoLetter? = null,
     val letterOverridden: Boolean = false,
-    val inputError: String? = null,
+    val inputError: GamePlayInputErrorReason? = null,
     val callsByLetter: Map<BingoLetter, List<Int>> = emptyMap(),
     val winners: List<WinAnnouncement> = emptyList(),
     val mode: GameMode = GameMode.COLUMNA,
     val calledCount: Int = 0,
     val possibleWinners: List<PredictionCandidate> = emptyList(),
 )
+
+/**
+ * Reasons `GamePlayViewModel.onSubmitCall()` can block confirming a pending call with.
+ * The Composable layer resolves each case to display text via `stringResource()`.
+ */
+sealed interface GamePlayInputErrorReason {
+    data object InvalidNumber : GamePlayInputErrorReason
+    data object LetterMismatch : GamePlayInputErrorReason
+    data object DuplicateCall : GamePlayInputErrorReason
+}

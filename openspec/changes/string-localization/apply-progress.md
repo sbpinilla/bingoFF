@@ -1,10 +1,11 @@
 # Apply Progress: String Resource Extraction + English Localization
 
-**Phase A of 2** — Phase B (ViewModel reason-type refactors, wiring, and pinned-test updates) is a separate, later apply run and will append to this artifact.
+**Phase A of 2** — complete and committed to `master` (`0e2dc6d`).
+**Phase B of 2** — complete (this run). Both phases done; change ready for `sdd-verify`.
 
 ## Status
 
-13/13 Phase A tasks complete (A.1–A.13). Phase B (B.1–B.12) not started — out of scope for this run.
+13/13 Phase A tasks complete (A.1–A.13). 12/12 Phase B tasks complete (B.1–B.12). 25/25 total.
 
 ## Completed Tasks (Phase A)
 
@@ -22,20 +23,56 @@
 - [x] A.12 Verified: `rg -n '"Atrás"|"FREE"'` across `ui/` finds zero code occurrences (only one KDoc comment mentioning "FREE" in `BingoGridDisplay.kt`, which is prose, not a literal). All 5 back-navigation content descriptions and both FREE-cell labels resolve to `common_back` / `common_free_cell`.
 - [x] A.13 Build gate: `./gradlew testDebugUnitTest` → BUILD SUCCESSFUL (existing suite green, unmodified). `./gradlew build` → BUILD SUCCESSFUL (includes lint, assembleDebug, assembleRelease — no MissingTranslation or unused-resource errors).
 
-## Remaining Tasks (Phase B — not started, separate apply run)
+## Completed Tasks (Phase B)
 
-- [ ] B.1 `ui/boards/create/CreateBoardUiState.kt`: `identifierError: String?` → `CreateBoardErrorReason?`.
-- [ ] B.2 `ui/boards/create/CreateBoardViewModel.kt`: update `onSubmit()` assignment sites.
-- [ ] B.3 `ui/boards/create/CreateBoardScreen.kt`: add `toMessage()` extension, wire `supportingText`.
-- [ ] B.4 `ui/game/play/GamePlayUiState.kt`: `inputError: String?` → `GamePlayInputErrorReason?`.
-- [ ] B.5 `ui/game/play/GamePlayViewModel.kt`: update `PendingEntry.error` type and assignment sites.
-- [ ] B.6 `ui/game/play/GamePlayScreen.kt`: add resolver extension, wire `supportingText`.
-- [ ] B.7 `ui/boards/importexport/ImportBoardsUiState.kt`: `jsonError`/`resultMessage` → sealed/data types.
-- [ ] B.8 `ui/boards/importexport/ImportBoardsViewModel.kt`: update assignment sites.
-- [ ] B.9 `ui/boards/importexport/ImportBoardsScreen.kt`: add resolver extensions, wire display + snackbar.
-- [ ] B.10 `GamePlayViewModelTest.kt:186`: assert on `GamePlayInputErrorReason.DuplicateCall`.
-- [ ] B.11 `ImportBoardsViewModelTest.kt:86`: assert on `ImportResultSummary(imported = 1, skipped = 1)`.
-- [ ] B.12 Build gate: `./gradlew testDebugUnitTest` (incl. B.10/B.11) + `./gradlew build`; commit Phase B alone.
+- [x] B.1 `ui/boards/create/CreateBoardUiState.kt`: `identifierError: String?` → `CreateBoardErrorReason?`; added `sealed interface CreateBoardErrorReason { BlankIdentifier, DuplicateIdentifier }`. (Landed as an uncommitted partial change from a prior crashed attempt; verified it matched the design's exact shape and continued from it rather than redoing it.)
+- [x] B.2 `ui/boards/create/CreateBoardViewModel.kt`: `onSubmit()`'s 2 `.copy(identifierError = "...")` literal sites now assign `CreateBoardErrorReason.BlankIdentifier` / `.DuplicateIdentifier`. No trigger/condition changed.
+- [x] B.3 `ui/boards/create/CreateBoardScreen.kt`: added private `@Composable fun CreateBoardErrorReason.toMessage(): String` (mirrors `GameSetupScreen.kt`'s `GameMode.label()` pattern); `supportingText` now resolves via `it.toMessage()` instead of rendering the raw string.
+- [x] B.4 `ui/game/play/GamePlayUiState.kt`: `inputError: String?` → `GamePlayInputErrorReason?`; added `sealed interface GamePlayInputErrorReason { InvalidNumber, LetterMismatch, DuplicateCall }`.
+- [x] B.5 `ui/game/play/GamePlayViewModel.kt`: private `PendingEntry.error: String?` → `GamePlayInputErrorReason?`; `onSubmitCall()`'s 3 assignment sites (invalid number, letter mismatch, duplicate call) updated to the sealed values.
+- [x] B.6 `ui/game/play/GamePlayScreen.kt`: added private `@Composable fun GamePlayInputErrorReason.toMessage(): String`; `BingoNumberField`'s `supportingText` now resolves via `state.inputError?.toMessage()`.
+- [x] B.7 `ui/boards/importexport/ImportBoardsUiState.kt`: `jsonError: String?` → `ImportBoardsErrorReason?` (added `sealed interface { BlankInput, InvalidJson }`); `resultMessage: String?` renamed to `resultSummary: ImportResultSummary?` (added `data class ImportResultSummary(val imported: Int, val skipped: Int)`).
+- [x] B.8 `ui/boards/importexport/ImportBoardsViewModel.kt`: `onSubmit()`'s 2 `jsonError` sites now assign the sealed values; the post-import assignment now builds `ImportResultSummary(imported = result.imported, skipped = result.skipped)` instead of a pre-formatted string.
+- [x] B.9 `ui/boards/importexport/ImportBoardsScreen.kt`: added private `@Composable` extensions `ImportBoardsErrorReason.toMessage()` and `ImportResultSummary.toMessage()` (the latter → `stringResource(R.string.import_result_message, imported, skipped)`); wired both the textarea `supportingText` and the snackbar `LaunchedEffect` through them.
+- [x] B.10 `GamePlayViewModelTest.kt:186`: replaced `assertEquals("Número ya cantado", state.inputError)` with `assertEquals(GamePlayInputErrorReason.DuplicateCall, state.inputError)`.
+- [x] B.11 `ImportBoardsViewModelTest.kt:86`: replaced `assertEquals("1 importados, 1 omitidos", state.resultMessage)` with `assertEquals(ImportResultSummary(imported = 1, skipped = 1), state.resultSummary)`.
+- [x] B.12 Build gate: `./gradlew testDebugUnitTest --tests "*GamePlayViewModelTest*" --tests "*ImportBoardsViewModelTest*"` → BUILD SUCCESSFUL, then full `./gradlew testDebugUnitTest` and `./gradlew build` → both BUILD SUCCESSFUL. Not yet committed — commit is a separate step outside this apply run's scope.
+
+## Files Changed (Phase B)
+
+| File | Action | What Was Done |
+|---|---|---|
+| `ui/boards/create/CreateBoardUiState.kt` | Modified | `identifierError` field type + `CreateBoardErrorReason` sealed interface (already present from prior crashed attempt; verified matches design) |
+| `ui/boards/create/CreateBoardViewModel.kt` | Modified | 2 assignment sites in `onSubmit()` |
+| `ui/boards/create/CreateBoardScreen.kt` | Modified | `toMessage()` extension + `supportingText` wiring |
+| `ui/game/play/GamePlayUiState.kt` | Modified | `inputError` field type + `GamePlayInputErrorReason` sealed interface |
+| `ui/game/play/GamePlayViewModel.kt` | Modified | `PendingEntry.error` type + 3 assignment sites in `onSubmitCall()` |
+| `ui/game/play/GamePlayScreen.kt` | Modified | `toMessage()` extension + `supportingText` wiring |
+| `ui/boards/importexport/ImportBoardsUiState.kt` | Modified | `jsonError`/`resultSummary` field types + `ImportBoardsErrorReason` sealed interface + `ImportResultSummary` data class |
+| `ui/boards/importexport/ImportBoardsViewModel.kt` | Modified | `onSubmit()`'s 2 `jsonError` sites + `resultSummary` assignment |
+| `ui/boards/importexport/ImportBoardsScreen.kt` | Modified | 2 `toMessage()` extensions + textarea/snackbar wiring |
+| `app/src/test/.../game/play/GamePlayViewModelTest.kt` | Modified | Line 186 assertion now targets `GamePlayInputErrorReason.DuplicateCall` |
+| `app/src/test/.../boards/importexport/ImportBoardsViewModelTest.kt` | Modified | Line 86 assertion now targets `ImportResultSummary(imported = 1, skipped = 1)` |
+
+Phase B did not touch `values/strings.xml` or `values-en/strings.xml` — all 8 ViewModel-owned keys already existed from Phase A.
+
+## Work Unit Evidence (Phase B)
+
+| Evidence | Value |
+|---|---|
+| Focused test command and exact result | `./gradlew testDebugUnitTest --tests "*GamePlayViewModelTest*" --tests "*ImportBoardsViewModelTest*"` → BUILD SUCCESSFUL |
+| Runtime harness command/scenario and exact result | N/A — no Compose UI test infra project-wide (standing convention); manual device verification of Spanish (default) and English (`en` locale) rendering is expected-deferred, consistent with Phase A and prior localization/theme work |
+| Rollback boundary | Revert the 3 `UiState` files, 2 ViewModels, 3 Composables' display sites, and 2 test files listed above; Phase A's `strings.xml`/`values-en/strings.xml` entries stay untouched and harmless |
+
+## Deviations from Design (Phase B)
+
+None — implementation matches design.md's Phase B file list, sealed-type shapes, and Composable-resolution pattern exactly. The one pre-existing partial edit found at start of this run (`CreateBoardUiState.kt`'s `identifierError`/`CreateBoardErrorReason`) was verified byte-for-byte against the design's specified shape before continuing.
+
+## Build Gate Results (Phase B)
+
+- `./gradlew testDebugUnitTest` (focused, B.10/B.11): BUILD SUCCESSFUL
+- `./gradlew testDebugUnitTest` (full suite): BUILD SUCCESSFUL
+- `./gradlew build`: BUILD SUCCESSFUL (assembleDebug, assembleRelease, lint, test — no errors)
 
 ## Files Changed (Phase A)
 
@@ -74,4 +111,4 @@ None — implementation matches design.md's Phase A file list, resource-key conv
 
 ## Next Step
 
-Phase B apply run: implement B.1–B.12 (ViewModel reason types, Composable wiring, pinned test updates), then run `sdd-verify` for the complete change.
+Both phases complete (25/25 tasks). Ready for `sdd-verify` on the complete change. Phase B has not yet been committed — that remains a separate delivery step outside this apply run's scope.

@@ -46,7 +46,7 @@ class CreateBoardViewModel @Inject constructor(
         val state = _uiState.value
 
         if (state.identifier.isBlank()) {
-            _uiState.update { it.copy(identifierError = "El identificador no puede estar vacío") }
+            _uiState.update { it.copy(identifierError = CreateBoardErrorReason.BlankIdentifier) }
             return
         }
 
@@ -68,7 +68,7 @@ class CreateBoardViewModel @Inject constructor(
                     _uiState.update { it.copy(submitSuccess = true, fieldErrors = emptyMap()) }
                 }
                 .onFailure {
-                    _uiState.update { it.copy(identifierError = "Ese identificador ya existe") }
+                    _uiState.update { it.copy(identifierError = CreateBoardErrorReason.DuplicateIdentifier) }
                 }
         }
     }

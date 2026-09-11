@@ -43,15 +43,15 @@ Rationale: the Phase A / Phase B split is a confirmed design decision, not a ris
 
 ## Phase B: ViewModel Reason Types + Composable Wiring + Pinned Tests
 
-- [ ] B.1 `ui/boards/create/CreateBoardUiState.kt`: change `identifierError: String?` → `CreateBoardErrorReason?`; add `sealed interface CreateBoardErrorReason { data object BlankIdentifier; data object DuplicateIdentifier }`.
-- [ ] B.2 `ui/boards/create/CreateBoardViewModel.kt`: update `onSubmit()`'s 2 assignment sites to use the sealed values instead of literal strings.
-- [ ] B.3 `ui/boards/create/CreateBoardScreen.kt`: add private `@Composable fun CreateBoardErrorReason.toMessage(): String` (mirrors `GameMode.label()`); wire `supportingText` through it.
-- [ ] B.4 `ui/game/play/GamePlayUiState.kt`: change `inputError: String?` → `GamePlayInputErrorReason?`; add `sealed interface GamePlayInputErrorReason { data object InvalidNumber; data object LetterMismatch; data object DuplicateCall }`.
-- [ ] B.5 `ui/game/play/GamePlayViewModel.kt`: change private `PendingEntry.error` field type; update `onSubmitCall()`'s 3 assignment sites (invalid number, letter mismatch, duplicate call).
-- [ ] B.6 `ui/game/play/GamePlayScreen.kt`: add private `@Composable` extension resolving `GamePlayInputErrorReason` to text; wire `supportingText` through it.
-- [ ] B.7 `ui/boards/importexport/ImportBoardsUiState.kt`: change `jsonError: String?` → `ImportBoardsErrorReason?`; rename `resultMessage: String?` → `resultSummary: ImportResultSummary?`; add `sealed interface ImportBoardsErrorReason { data object BlankInput; data object InvalidJson }` and `data class ImportResultSummary(val imported: Int, val skipped: Int)`.
-- [ ] B.8 `ui/boards/importexport/ImportBoardsViewModel.kt`: update `onSubmit()`'s 2 `jsonError` assignment sites and the `resultSummary` assignment.
-- [ ] B.9 `ui/boards/importexport/ImportBoardsScreen.kt`: add private `@Composable` extensions resolving `jsonError` and `resultSummary` (→ `stringResource(R.string.import_result_message, imported, skipped)`); wire display + snackbar.
-- [ ] B.10 `app/src/test/.../game/play/GamePlayViewModelTest.kt:186`: replace `assertEquals("Número ya cantado", state.inputError)` with `assertEquals(GamePlayInputErrorReason.DuplicateCall, state.inputError)`.
-- [ ] B.11 `app/src/test/.../boards/importexport/ImportBoardsViewModelTest.kt:86`: replace the literal-text assertion with `assertEquals(ImportResultSummary(imported = 1, skipped = 1), state.resultSummary)`.
-- [ ] B.12 **Build gate**: run `./gradlew testDebugUnitTest` (full suite incl. B.10/B.11) and `./gradlew build`; commit Phase B alone.
+- [x] B.1 `ui/boards/create/CreateBoardUiState.kt`: change `identifierError: String?` → `CreateBoardErrorReason?`; add `sealed interface CreateBoardErrorReason { data object BlankIdentifier; data object DuplicateIdentifier }`.
+- [x] B.2 `ui/boards/create/CreateBoardViewModel.kt`: update `onSubmit()`'s 2 assignment sites to use the sealed values instead of literal strings.
+- [x] B.3 `ui/boards/create/CreateBoardScreen.kt`: add private `@Composable fun CreateBoardErrorReason.toMessage(): String` (mirrors `GameMode.label()`); wire `supportingText` through it.
+- [x] B.4 `ui/game/play/GamePlayUiState.kt`: change `inputError: String?` → `GamePlayInputErrorReason?`; add `sealed interface GamePlayInputErrorReason { data object InvalidNumber; data object LetterMismatch; data object DuplicateCall }`.
+- [x] B.5 `ui/game/play/GamePlayViewModel.kt`: change private `PendingEntry.error` field type; update `onSubmitCall()`'s 3 assignment sites (invalid number, letter mismatch, duplicate call).
+- [x] B.6 `ui/game/play/GamePlayScreen.kt`: add private `@Composable` extension resolving `GamePlayInputErrorReason` to text; wire `supportingText` through it.
+- [x] B.7 `ui/boards/importexport/ImportBoardsUiState.kt`: change `jsonError: String?` → `ImportBoardsErrorReason?`; rename `resultMessage: String?` → `resultSummary: ImportResultSummary?`; add `sealed interface ImportBoardsErrorReason { data object BlankInput; data object InvalidJson }` and `data class ImportResultSummary(val imported: Int, val skipped: Int)`.
+- [x] B.8 `ui/boards/importexport/ImportBoardsViewModel.kt`: update `onSubmit()`'s 2 `jsonError` assignment sites and the `resultSummary` assignment.
+- [x] B.9 `ui/boards/importexport/ImportBoardsScreen.kt`: add private `@Composable` extensions resolving `jsonError` and `resultSummary` (→ `stringResource(R.string.import_result_message, imported, skipped)`); wire display + snackbar.
+- [x] B.10 `app/src/test/.../game/play/GamePlayViewModelTest.kt:186`: replace `assertEquals("Número ya cantado", state.inputError)` with `assertEquals(GamePlayInputErrorReason.DuplicateCall, state.inputError)`.
+- [x] B.11 `app/src/test/.../boards/importexport/ImportBoardsViewModelTest.kt:86`: replace the literal-text assertion with `assertEquals(ImportResultSummary(imported = 1, skipped = 1), state.resultSummary)`.
+- [x] B.12 **Build gate**: run `./gradlew testDebugUnitTest` (full suite incl. B.10/B.11) and `./gradlew build`; commit Phase B alone.

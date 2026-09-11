@@ -28,14 +28,14 @@ class ImportBoardsViewModel @Inject constructor(
         val text = _uiState.value.jsonText
 
         if (text.isBlank()) {
-            _uiState.update { it.copy(jsonText = "", jsonError = "El texto no puede estar vacío") }
+            _uiState.update { it.copy(jsonText = "", jsonError = ImportBoardsErrorReason.BlankInput) }
             return
         }
 
         val boards = try {
             BoardJsonCodec.decode(text)
         } catch (e: Exception) {
-            _uiState.update { it.copy(jsonText = "", jsonError = "El JSON no es válido") }
+            _uiState.update { it.copy(jsonText = "", jsonError = ImportBoardsErrorReason.InvalidJson) }
             return
         }
 
@@ -45,13 +45,13 @@ class ImportBoardsViewModel @Inject constructor(
                 it.copy(
                     jsonText = "",
                     jsonError = null,
-                    resultMessage = "${result.imported} importados, ${result.skipped} omitidos",
+                    resultSummary = ImportResultSummary(imported = result.imported, skipped = result.skipped),
                 )
             }
         }
     }
 
     fun onResultMessageShown() {
-        _uiState.update { it.copy(resultMessage = null) }
+        _uiState.update { it.copy(resultSummary = null) }
     }
 }
