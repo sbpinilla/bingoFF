@@ -21,7 +21,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.sergiodev.bingo.R
 
 @Composable
 fun SettingsScreen(
@@ -64,10 +66,13 @@ fun SettingsContent(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
-                title = { Text("Configuración") },
+                title = { Text(stringResource(R.string.settings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.common_back),
+                        )
                     }
                 },
                 windowInsets = WindowInsets(0, 0, 0, 0),
@@ -76,17 +81,17 @@ fun SettingsContent(
     ) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             ListItem(
-                headlineContent = { Text("Tema") },
+                headlineContent = { Text(stringResource(R.string.settings_theme_item)) },
                 leadingContent = { Icon(Icons.Default.Palette, contentDescription = null) },
                 modifier = Modifier.clickable(onClick = onNavigateToTheme),
             )
             ListItem(
-                headlineContent = { Text("Exportar") },
+                headlineContent = { Text(stringResource(R.string.settings_export_item)) },
                 leadingContent = { Icon(Icons.Default.Share, contentDescription = null) },
                 modifier = Modifier.clickable(onClick = onExport),
             )
             ListItem(
-                headlineContent = { Text("Importar") },
+                headlineContent = { Text(stringResource(R.string.settings_import_item)) },
                 leadingContent = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
                 modifier = Modifier.clickable(onClick = onNavigateToImport),
             )

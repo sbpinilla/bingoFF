@@ -91,7 +91,10 @@ fun BoardListContent(
                         IconButton(onClick = onNavigateToSettings) {
                             Icon(Icons.Default.Settings, contentDescription = null)
                         }
-                        Text("Configuración", style = MaterialTheme.typography.labelSmall)
+                        Text(
+                            stringResource(R.string.board_list_settings_label),
+                            style = MaterialTheme.typography.labelSmall,
+                        )
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         FilledIconButton(
@@ -102,13 +105,19 @@ fun BoardListContent(
                         ) {
                             Icon(Icons.Default.PlayArrow, contentDescription = null)
                         }
-                        Text("Jugar", style = MaterialTheme.typography.labelSmall)
+                        Text(
+                            stringResource(R.string.board_list_play_label),
+                            style = MaterialTheme.typography.labelSmall,
+                        )
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         IconButton(onClick = onCreateBoard) {
                             Icon(Icons.Default.Add, contentDescription = null)
                         }
-                        Text("Agregar", style = MaterialTheme.typography.labelSmall)
+                        Text(
+                            stringResource(R.string.board_list_add_label),
+                            style = MaterialTheme.typography.labelSmall,
+                        )
                     }
                 }
             }
@@ -116,7 +125,7 @@ fun BoardListContent(
     ) { innerPadding ->
         if (state.boards.isEmpty()) {
             EmptyState(
-                message = "No hay cartones agregados",
+                message = stringResource(R.string.board_list_empty_message),
                 modifier = Modifier.fillMaxSize().padding(innerPadding),
             )
         } else {
@@ -138,7 +147,7 @@ fun BoardListContent(
 private fun BoardCardItem(board: BoardCard) {
     Column {
         Text(
-            text = "#${board.id} · ${board.identifier}",
+            text = stringResource(R.string.board_list_item_label, board.id, board.identifier),
             fontWeight = FontWeight.Bold,
         )
         BingoGridDisplay(board = board)

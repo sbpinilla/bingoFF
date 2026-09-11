@@ -23,10 +23,12 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sergiodev.bingo.R
 import com.sergiodev.bingo.domain.model.BingoLetter
 import com.sergiodev.bingo.ui.common.BingoFieldPadding
 import com.sergiodev.bingo.ui.common.BingoFieldWidth
@@ -92,7 +94,7 @@ fun CreateBoardContent(
         OutlinedTextField(
             value = state.identifier,
             onValueChange = onIdentifierChange,
-            label = { Text("Identificador") },
+            label = { Text(stringResource(R.string.create_board_identifier_label)) },
             isError = state.identifierError != null,
             supportingText = { state.identifierError?.let { Text(it) } },
             modifier = Modifier.fillMaxWidth(),
@@ -132,7 +134,7 @@ fun CreateBoardContent(
             }
         }
         Button(onClick = onSubmit) {
-            Text("Guardar cartón")
+            Text(stringResource(R.string.create_board_save_button))
         }
     }
 }

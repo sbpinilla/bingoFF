@@ -1,0 +1,72 @@
+<resources>
+    <string name="app_name">Bingo FF</string>
+
+    <!-- Common / shared across screens -->
+    <string name="common_back">Back</string>
+    <string name="common_free_cell">FREE</string>
+
+    <!-- Board list -->
+    <string name="board_list_settings_label">Settings</string>
+    <string name="board_list_play_label">Play</string>
+    <string name="board_list_add_label">Add</string>
+    <string name="board_list_empty_message">No boards added yet</string>
+    <string name="board_list_item_label">#%1$d · %2$s</string>
+
+    <!-- Create board -->
+    <string name="create_board_identifier_label">Identifier</string>
+    <string name="create_board_save_button">Save card</string>
+    <!-- ViewModel-owned (consumed starting Phase B) -->
+    <string name="create_board_error_blank_identifier">The identifier cannot be blank</string>
+    <string name="create_board_error_duplicate_identifier">That identifier already exists</string>
+
+    <!-- Game setup -->
+    <string name="game_setup_title">Set up game</string>
+    <string name="game_setup_no_boards_message">Register at least one board to play</string>
+    <string name="game_setup_select_mode_message">Select the game mode</string>
+    <string name="game_setup_start_button">Play</string>
+    <string name="game_setup_mode_columna">Column</string>
+    <string name="game_setup_mode_o">O</string>
+    <string name="game_setup_mode_l">L</string>
+    <string name="game_setup_mode_i">I</string>
+    <string name="game_setup_mode_carton_completo">Full card</string>
+
+    <!-- Game play -->
+    <string name="game_play_title">Play</string>
+    <string name="game_play_mode_status">Mode: %1$s · Calls: %2$d</string>
+    <string name="game_play_bingo_announcement">Bingo! #%1$d %2$s</string>
+    <string name="game_play_number_label">Number</string>
+    <string name="game_play_submit_call_button">Call number</string>
+    <string name="game_play_letter_calls">%1$s: %2$s</string>
+    <string name="game_play_possible_winners_title">Possible winners</string>
+    <string name="win_prediction_candidate">Card %1$s%2$s</string>
+    <string name="game_play_end_game_button">End game</string>
+    <string name="game_play_end_game_dialog_title">End game?</string>
+    <string name="game_play_end_game_dialog_message">The called numbers and announced bingos for this game will be lost.</string>
+    <string name="game_play_end_game_confirm_button">End</string>
+    <string name="game_play_end_game_cancel_button">Cancel</string>
+    <!-- ViewModel-owned (consumed starting Phase B) -->
+    <string name="game_play_error_invalid_number">Invalid number (1-75)</string>
+    <string name="game_play_error_letter_mismatch">The selected letter does not match that number</string>
+    <string name="game_play_error_duplicate_call">Number already called</string>
+
+    <!-- Import boards -->
+    <string name="import_boards_title">Import boards</string>
+    <string name="import_boards_json_label">Boards JSON</string>
+    <string name="import_boards_submit_button">Import</string>
+    <!-- ViewModel-owned (consumed starting Phase B) -->
+    <string name="import_boards_error_blank_input">The text cannot be blank</string>
+    <string name="import_boards_error_invalid_json">The JSON is not valid</string>
+    <string name="import_result_message">%1$d imported, %2$d skipped</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_theme_item">Theme</string>
+    <string name="settings_export_item">Export</string>
+    <string name="settings_import_item">Import</string>
+
+    <!-- Theme -->
+    <string name="theme_title">Theme</string>
+    <string name="theme_light_option">Light</string>
+    <string name="theme_dark_option">Dark</string>
+    <string name="theme_system_option">System</string>
+</resources>

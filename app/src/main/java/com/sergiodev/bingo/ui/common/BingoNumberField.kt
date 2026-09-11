@@ -15,9 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.sergiodev.bingo.R
 
 internal val BingoFieldWidth = 64.dp
 internal val BingoFieldHeight = 56.dp
@@ -87,7 +89,7 @@ fun BingoFreeCell(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
-            Text("FREE", style = MaterialTheme.typography.labelMedium)
+            Text(stringResource(R.string.common_free_cell), style = MaterialTheme.typography.labelMedium)
         }
     }
 }

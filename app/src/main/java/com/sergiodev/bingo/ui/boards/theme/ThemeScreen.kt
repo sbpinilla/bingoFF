@@ -18,8 +18,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sergiodev.bingo.R
 import com.sergiodev.bingo.domain.repository.ThemeMode
 
 @Composable
@@ -51,10 +53,13 @@ fun ThemeContent(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
-                title = { Text("Tema") },
+                title = { Text(stringResource(R.string.theme_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.common_back),
+                        )
                     }
                 },
                 windowInsets = WindowInsets(0, 0, 0, 0),
@@ -63,7 +68,7 @@ fun ThemeContent(
     ) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             ListItem(
-                headlineContent = { Text("Claro") },
+                headlineContent = { Text(stringResource(R.string.theme_light_option)) },
                 leadingContent = {
                     RadioButton(
                         selected = state.selectedMode == ThemeMode.LIGHT,
@@ -73,7 +78,7 @@ fun ThemeContent(
                 modifier = Modifier.clickable { onModeSelected(ThemeMode.LIGHT) },
             )
             ListItem(
-                headlineContent = { Text("Oscuro") },
+                headlineContent = { Text(stringResource(R.string.theme_dark_option)) },
                 leadingContent = {
                     RadioButton(
                         selected = state.selectedMode == ThemeMode.DARK,
@@ -83,7 +88,7 @@ fun ThemeContent(
                 modifier = Modifier.clickable { onModeSelected(ThemeMode.DARK) },
             )
             ListItem(
-                headlineContent = { Text("Sistema") },
+                headlineContent = { Text(stringResource(R.string.theme_system_option)) },
                 leadingContent = {
                     RadioButton(
                         selected = state.selectedMode == ThemeMode.SYSTEM,

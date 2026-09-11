@@ -16,9 +16,11 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.sergiodev.bingo.R
 import com.sergiodev.bingo.domain.model.BingoLetter
 import com.sergiodev.bingo.domain.model.BoardCard
 import com.sergiodev.bingo.domain.model.GridPosition
@@ -56,7 +58,7 @@ fun BingoGridDisplay(board: BoardCard, modifier: Modifier = Modifier) {
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
-                                text = number?.toString() ?: "FREE",
+                                text = number?.toString() ?: stringResource(R.string.common_free_cell),
                                 textAlign = TextAlign.Center,
                                 style = if (number == null) {
                                     MaterialTheme.typography.labelSmall

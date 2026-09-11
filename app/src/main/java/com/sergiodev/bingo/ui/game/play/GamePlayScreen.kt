@@ -33,9 +33,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sergiodev.bingo.R
 import com.sergiodev.bingo.domain.game.PredictionCandidate
 import com.sergiodev.bingo.domain.model.BingoLetter
 import com.sergiodev.bingo.ui.common.BingoNumberField
@@ -79,10 +81,13 @@ fun GamePlayContent(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
-                title = { Text("Jugar") },
+                title = { Text(stringResource(R.string.game_play_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.common_back),
+                        )
                     }
                 },
                 windowInsets = WindowInsets(0, 0, 0, 0),
@@ -100,12 +105,16 @@ fun GamePlayContent(
         ) {
             PossibleWinnersSection(state.possibleWinners)
 
-            Text("Modo: ${state.mode.name} · Llamadas: ${state.calledCount}")
+            Text(stringResource(R.string.game_play_mode_status, state.mode.name, state.calledCount))
 
             state.winners.forEach { win ->
                 Card {
                     Text(
-                        text = "¡Bingo! #${win.sequentialNumber} ${win.identifier}",
+                        text = stringResource(
+                            R.string.game_play_bingo_announcement,
+                            win.sequentialNumber,
+                            win.identifier,
+                        ),
                         modifier = Modifier.padding(8.dp),
                     )
                 }
@@ -114,7 +123,7 @@ fun GamePlayContent(
             BingoNumberField(
                 value = state.numberInput,
                 onValueChange = onNumberInputChanged,
-                label = "Número",
+                label = stringResource(R.string.game_play_number_label),
                 isError = state.inputError != null,
                 supportingText = state.inputError,
                 modifier = Modifier.fillMaxWidth(),
@@ -131,14 +140,20 @@ fun GamePlayContent(
             }
 
             Button(onClick = onSubmitCall) {
-                Text("Cantar número")
+                Text(stringResource(R.string.game_play_submit_call_button))
             }
 
             HorizontalDivider()
 
             BingoLetter.entries.forEach { letter ->
                 val calls = state.callsByLetter[letter].orEmpty()
-                Text(text = "${letter.name}: ${calls.joinToString(", ")}")
+                Text(
+                    text = stringResource(
+                        R.string.game_play_letter_calls,
+                        letter.name,
+                        calls.joinToString(", "),
+                    ),
+                )
             }
 
             EndGameAction(onConfirm = onEndGame)
@@ -150,10 +165,10 @@ fun GamePlayContent(
 private fun PossibleWinnersSection(possibleWinners: List<PredictionCandidate>) {
     if (possibleWinners.isEmpty()) return
 
-    Text("Posibles ganadores", style = MaterialTheme.typography.titleMedium)
+    Text(stringResource(R.string.game_play_possible_winners_title), style = MaterialTheme.typography.titleMedium)
     possibleWinners.forEach { candidate ->
         val suffix = candidate.letter?.let { " (${it.name})" }.orEmpty()
-        Text("Cartón ${candidate.identifier}$suffix")
+        Text(stringResource(R.string.win_prediction_candidate, candidate.identifier, suffix))
     }
     HorizontalDivider()
 }
@@ -169,14 +184,14 @@ private fun EndGameAction(onConfirm: () -> Unit) {
             contentColor = MaterialTheme.colorScheme.onError,
         ),
     ) {
-        Text("Terminar juego")
+        Text(stringResource(R.string.game_play_end_game_button))
     }
 
     if (show) {
         AlertDialog(
             onDismissRequest = { show = false },
-            title = { Text("¿Terminar juego?") },
-            text = { Text("Se perderán los números cantados y los bingos anunciados de esta partida.") },
+            title = { Text(stringResource(R.string.game_play_end_game_dialog_title)) },
+            text = { Text(stringResource(R.string.game_play_end_game_dialog_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -185,12 +200,12 @@ private fun EndGameAction(onConfirm: () -> Unit) {
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
                 ) {
-                    Text("Terminar")
+                    Text(stringResource(R.string.game_play_end_game_confirm_button))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { show = false }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.game_play_end_game_cancel_button))
                 }
             },
         )

@@ -23,9 +23,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sergiodev.bingo.R
 import com.sergiodev.bingo.domain.model.GameMode
 import com.sergiodev.bingo.ui.theme.OnSuccess
 import com.sergiodev.bingo.ui.theme.Success
@@ -62,10 +64,13 @@ fun GameSetupContent(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
-                title = { Text("Configurar juego") },
+                title = { Text(stringResource(R.string.game_setup_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.common_back),
+                        )
                     }
                 },
                 windowInsets = WindowInsets(0, 0, 0, 0),
@@ -77,9 +82,9 @@ fun GameSetupContent(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             if (!state.hasBoards) {
-                Text("Registra al menos un cartón para poder jugar")
+                Text(stringResource(R.string.game_setup_no_boards_message))
             }
-            Text("Selecciona el modo de juego")
+            Text(stringResource(R.string.game_setup_select_mode_message))
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 GameModeChip(
                     mode = GameMode.COLUMNA,
@@ -112,7 +117,7 @@ fun GameSetupContent(
                 enabled = state.canStart,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Jugar")
+                Text(stringResource(R.string.game_setup_start_button))
             }
         }
     }
@@ -144,10 +149,11 @@ private fun GameModeChip(
     )
 }
 
+@Composable
 private fun GameMode.label(): String = when (this) {
-    GameMode.COLUMNA -> "Columna"
-    GameMode.O -> "O"
-    GameMode.L -> "L"
-    GameMode.I -> "I"
-    GameMode.CARTON_COMPLETO -> "Completo"
+    GameMode.COLUMNA -> stringResource(R.string.game_setup_mode_columna)
+    GameMode.O -> stringResource(R.string.game_setup_mode_o)
+    GameMode.L -> stringResource(R.string.game_setup_mode_l)
+    GameMode.I -> stringResource(R.string.game_setup_mode_i)
+    GameMode.CARTON_COMPLETO -> stringResource(R.string.game_setup_mode_carton_completo)
 }
