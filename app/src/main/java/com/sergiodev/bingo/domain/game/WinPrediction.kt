@@ -5,14 +5,6 @@ import com.sergiodev.bingo.domain.model.BoardCard
 import com.sergiodev.bingo.domain.model.GameMode
 
 /**
- * Maximum number of distinct called numbers, session-wide, during which the
- * "Posibles ganadores" panel is computed and shown. Past this ceiling the
- * real game has almost certainly been decided elsewhere, so the panel is
- * hidden for the rest of the session rather than frozen on stale data.
- */
-const val MAX_PREDICTION_CALLS = 6
-
-/**
  * A (board, column) pair close to winning. [missing] is how many of the
  * pattern's cells are still unsatisfied.
  */
@@ -36,12 +28,11 @@ private fun missingThreshold(mode: GameMode): Int = when (mode) {
 
 /**
  * Near-win candidates for every [GameMode], re-evaluated on every newly
- * called number. Only COLUMNA is subject to a call-count ceiling: once
- * distinct [called] numbers exceed [MAX_PREDICTION_CALLS] the COLUMNA panel
- * is hidden for the rest of the session rather than frozen on stale data.
- * Ceiling is derived from `called.size` — the distinct-numbers-called
- * count, not a raw call-history length — so a duplicate manual entry cannot
- * inflate it. O, L, I, and CARTON_COMPLETO have no such ceiling.
+ * called number. No [GameMode] is subject to a session-wide call-count
+ * ceiling: a (board, pattern) pair qualifies purely on its own missing-cell
+ * count, however many unrelated numbers have been called elsewhere — a
+ * column sitting at missing <= 2 stays a valid near-win no matter how many
+ * numbers from other columns were called in between.
  *
  * A pair already present in [announced] is excluded even if it still
  * numerically satisfies the qualifying rule. Results are sorted
@@ -54,8 +45,6 @@ fun predictPossibleWinners(
     called: Set<Int>,
     announced: Set<AnnouncedWin>,
 ): List<PredictionCandidate> {
-    if (mode == GameMode.COLUMNA && called.size > MAX_PREDICTION_CALLS) return emptyList()
-
     val threshold = missingThreshold(mode)
     val candidates = mutableListOf<PredictionCandidate>()
     for (board in boards) {

@@ -119,9 +119,9 @@ class WinPredictionTest {
             val realCells = pattern.cells.mapNotNull { board1.numberAt(it) }
             val threshold = if (mode == GameMode.CARTON_COMPLETO) 10 else 3
             // Leave exactly `threshold` real cells uncalled, then pad with unrelated
-            // numbers so total distinct calls exceeds MAX_PREDICTION_CALLS (Columna-only ceiling).
+            // numbers so total distinct calls exceeds the old 6-call ceiling.
             val patternCalls = realCells.drop(threshold).toSet()
-            val padding = (200 until 200 + MAX_PREDICTION_CALLS + 5).toSet()
+            val padding = (200 until 211).toSet()
             val called = patternCalls + padding
 
             val result = predictPossibleWinners(
@@ -131,9 +131,9 @@ class WinPredictionTest {
                 announced = emptySet(),
             )
 
-            assertTrue("padding must push calls past the Columna-only ceiling", called.size > MAX_PREDICTION_CALLS)
+            assertTrue("padding must push calls past the old 6-call ceiling", called.size > 6)
             assertTrue(
-                "mode=$mode should still qualify past MAX_PREDICTION_CALLS, since only Columna has a ceiling",
+                "mode=$mode should still qualify at high call counts, since no mode has a ceiling",
                 result.any { it.boardId == board1.id && it.missing == threshold },
             )
         }
@@ -196,18 +196,24 @@ class WinPredictionTest {
     }
 
     @Test
-    fun columna_sevenCalls_isExcluded() {
-        val calledSeven = setOf(3, 7, 12, 14, 46, 99, 98)
+    fun columna_noCallCountCeiling_stillIncludedAtHighCallCount() {
+        // board1's B column: 3,7,12,14,15. Leave exactly 2 real cells (14, 15) uncalled -> missing == 2.
+        val patternCalls = setOf(3, 7, 12)
+        val padding = (200 until 211).toSet() // 11 unrelated numbers, well past the old 6-call ceiling
+        val called = patternCalls + padding
 
         val result = predictPossibleWinners(
             mode = GameMode.COLUMNA,
             boards = listOf(board1),
-            called = calledSeven,
+            called = called,
             announced = emptySet(),
         )
 
-        assertEquals(7, calledSeven.size)
-        assertTrue(result.isEmpty())
+        assertTrue("padding must push calls past the old Columna-only ceiling", called.size > 6)
+        assertTrue(
+            "board1's B column should still qualify at high call counts, since Columna has no ceiling",
+            result.any { it.boardId == 1L && it.letter == BingoLetter.B && it.missing == 2 },
+        )
     }
 
     @Test
@@ -243,8 +249,7 @@ class WinPredictionTest {
     @Test
     fun boardQualifyingOnTwoColumns_producesTwoEntries() {
         // board1's B column: 3,7,12,14,15 ; board1's I column: 16,17,18,19,20.
-        // Both fully called within the 6-call ceiling isn't possible (10 numbers > 6),
-        // so instead qualify both via missing <= 2 each: 3 of B's 5 and 3 of I's 5.
+        // Qualify both via missing <= 2 each: 3 of B's 5 and 3 of I's 5.
         val called = setOf(3, 7, 12, 16, 17, 18) // 6 distinct calls: B missing 2, I missing 2
 
         val result = predictPossibleWinners(
@@ -263,7 +268,7 @@ class WinPredictionTest {
     fun results_sortedFewestMissingFirst_thenBoardId_thenLetterOrdinal() {
         // board1's N column (31,32,34,35 + FREE): 3 real numbers called -> missing 1.
         // board2's N column (33,36,37,38 + FREE): 2 real numbers called -> missing 2.
-        val called = setOf(31, 32, 34, 33, 36) // 5 distinct calls, within the ceiling
+        val called = setOf(31, 32, 34, 33, 36) // 5 distinct calls
 
         val result = predictPossibleWinners(
             mode = GameMode.COLUMNA,
