@@ -24,5 +24,5 @@ data class GamePlayUiState(
 sealed interface GamePlayInputErrorReason {
     data object InvalidNumber : GamePlayInputErrorReason
     data object LetterMismatch : GamePlayInputErrorReason
-    data object DuplicateCall : GamePlayInputErrorReason
+    data class DuplicateCall(val number: Int) : GamePlayInputErrorReason
 }

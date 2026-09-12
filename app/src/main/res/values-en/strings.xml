@@ -47,7 +47,7 @@
     <!-- ViewModel-owned (consumed starting Phase B) -->
     <string name="game_play_error_invalid_number">Invalid number (1-75)</string>
     <string name="game_play_error_letter_mismatch">The selected letter does not match that number</string>
-    <string name="game_play_error_duplicate_call">Number already called</string>
+    <string name="game_play_error_duplicate_call">Number already called: %1$d</string>
 
     <!-- Import boards -->
     <string name="import_boards_title">Import boards</string>

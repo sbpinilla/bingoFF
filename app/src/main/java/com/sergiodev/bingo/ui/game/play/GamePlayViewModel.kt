@@ -106,7 +106,9 @@ class GamePlayViewModel @Inject constructor(
         }
 
         if (number in calledNumbers.value) {
-            pending.update { it.copy(error = GamePlayInputErrorReason.DuplicateCall) }
+            // Auto-clear the field on a duplicate so the operator can type the next
+            // number right away instead of having to erase the rejected one first.
+            pending.value = PendingEntry(error = GamePlayInputErrorReason.DuplicateCall(number))
             return
         }
 

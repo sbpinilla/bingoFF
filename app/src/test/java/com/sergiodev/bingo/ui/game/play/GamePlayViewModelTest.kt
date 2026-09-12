@@ -183,7 +183,8 @@ class GamePlayViewModelTest {
         runCurrent()
 
         val state = viewModel.uiState.value
-        assertEquals(GamePlayInputErrorReason.DuplicateCall, state.inputError)
+        assertEquals(GamePlayInputErrorReason.DuplicateCall(7), state.inputError)
+        assertEquals("", state.numberInput)
         assertEquals(1, state.calledCount)
         assertEquals(listOf(7), state.callsByLetter[BingoLetter.B])
     }

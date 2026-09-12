@@ -216,5 +216,6 @@ private fun EndGameAction(onConfirm: () -> Unit) {
 private fun GamePlayInputErrorReason.toMessage(): String = when (this) {
     GamePlayInputErrorReason.InvalidNumber -> stringResource(R.string.game_play_error_invalid_number)
     GamePlayInputErrorReason.LetterMismatch -> stringResource(R.string.game_play_error_letter_mismatch)
-    GamePlayInputErrorReason.DuplicateCall -> stringResource(R.string.game_play_error_duplicate_call)
+    is GamePlayInputErrorReason.DuplicateCall ->
+        stringResource(R.string.game_play_error_duplicate_call, number)
 }

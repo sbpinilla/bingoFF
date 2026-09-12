@@ -47,7 +47,7 @@
     <!-- ViewModel-owned (consumed starting Phase B) -->
     <string name="game_play_error_invalid_number">Número inválido (1-75)</string>
     <string name="game_play_error_letter_mismatch">La letra seleccionada no corresponde a ese número</string>
-    <string name="game_play_error_duplicate_call">Número ya cantado</string>
+    <string name="game_play_error_duplicate_call">Número ya cantado: %1$d</string>
 
     <!-- Import boards -->
     <string name="import_boards_title">Importar cartones</string>
