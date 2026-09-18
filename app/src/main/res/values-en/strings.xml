@@ -44,6 +44,10 @@
     <string name="game_play_end_game_dialog_message">The called numbers and announced bingos for this game will be lost.</string>
     <string name="game_play_end_game_confirm_button">End</string>
     <string name="game_play_end_game_cancel_button">Cancel</string>
+    <string name="game_play_end_game_icon_description">End game</string>
+    <string name="game_play_column_mark_won">Mark as won</string>
+    <string name="game_play_column_closed_label">Closed</string>
+    <string name="game_play_column_reopen_description">Reopen column</string>
     <!-- ViewModel-owned (consumed starting Phase B) -->
     <string name="game_play_error_invalid_number">Invalid number (1-75)</string>
     <string name="game_play_error_letter_mismatch">The selected letter does not match that number</string>

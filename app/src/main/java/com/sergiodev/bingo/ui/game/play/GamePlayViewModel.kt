@@ -23,6 +23,7 @@ import javax.inject.Inject
 
 private const val ARG_MODE = "mode"
 private const val KEY_CALLED_NUMBERS = "calledNumbers"
+private const val KEY_DISMISSED_LETTERS = "dismissedLetters"
 
 private data class PendingEntry(
     val numberInput: String = "",
@@ -45,11 +46,18 @@ class GamePlayViewModel @Inject constructor(
     )
     private val pending = MutableStateFlow(PendingEntry())
 
+    private val dismissedLetters = MutableStateFlow(
+        savedStateHandle.get<ArrayList<String>>(KEY_DISMISSED_LETTERS)
+            ?.mapNotNull { runCatching { BingoLetter.valueOf(it) }.getOrNull() }
+            ?.toSet() ?: emptySet(),
+    )
+
     val uiState: StateFlow<GamePlayUiState> = combine(
         repository.observeBoards(),
         calledNumbers,
         pending,
-    ) { boards, called, pendingEntry ->
+        dismissedLetters,
+    ) { boards, called, pendingEntry, dismissed ->
         val session = rebuildSession(mode, called, boards)
         GamePlayUiState(
             numberInput = pendingEntry.numberInput,
@@ -60,7 +68,9 @@ class GamePlayViewModel @Inject constructor(
             winners = session.winners,
             mode = mode,
             calledCount = called.size,
-            possibleWinners = predictPossibleWinners(mode, boards, called.toSet(), session.announced),
+            possibleWinners = predictPossibleWinners(mode, boards, called.toSet(), session.announced)
+                .filterNot { it.letter in dismissed },
+            dismissedLetters = dismissed,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -81,6 +91,19 @@ class GamePlayViewModel @Inject constructor(
 
     fun onLetterSelected(letter: BingoLetter) {
         pending.update { it.copy(selectedLetter = letter, overridden = true, error = null) }
+    }
+
+    /**
+     * Session-local toggle for a Columna column already won outside this app.
+     * Never touches [BingoWinChecker]/[WinAnnouncement]/[AnnouncedWin] — it only
+     * filters [GamePlayUiState.possibleWinners] downstream in [uiState].
+     */
+    fun onLetterDismissToggled(letter: BingoLetter) {
+        val updated = dismissedLetters.value.let {
+            if (letter in it) it - letter else it + letter
+        }
+        dismissedLetters.value = updated
+        savedStateHandle[KEY_DISMISSED_LETTERS] = ArrayList(updated.map { it.name })
     }
 
     /**

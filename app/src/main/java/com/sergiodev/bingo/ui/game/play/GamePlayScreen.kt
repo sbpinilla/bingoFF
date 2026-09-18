@@ -1,7 +1,10 @@
 package com.sergiodev.bingo.ui.game.play
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -10,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -21,25 +26,31 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sergiodev.bingo.R
 import com.sergiodev.bingo.domain.game.PredictionCandidate
 import com.sergiodev.bingo.domain.model.BingoLetter
+import com.sergiodev.bingo.domain.model.GameMode
 import com.sergiodev.bingo.ui.common.BingoNumberField
 
 @Composable
@@ -56,6 +67,7 @@ fun GamePlayScreen(
         onNumberInputChanged = viewModel::onNumberInputChanged,
         onLetterSelected = viewModel::onLetterSelected,
         onSubmitCall = viewModel::onSubmitCall,
+        onLetterDismissToggled = viewModel::onLetterDismissToggled,
         onEndGame = onEndGame,
         onNavigateBack = onNavigateBack,
         modifier = modifier,
@@ -69,12 +81,14 @@ fun GamePlayContent(
     onNumberInputChanged: (String) -> Unit,
     onLetterSelected: (BingoLetter) -> Unit,
     onSubmitCall: () -> Unit,
+    onLetterDismissToggled: (BingoLetter) -> Unit,
     onEndGame: () -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    var showEndGameDialog by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -87,6 +101,14 @@ fun GamePlayContent(
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.common_back),
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { showEndGameDialog = true }) {
+                        Icon(
+                            Icons.Default.Stop,
+                            contentDescription = stringResource(R.string.game_play_end_game_icon_description),
                         )
                     }
                 },
@@ -145,19 +167,143 @@ fun GamePlayContent(
 
             HorizontalDivider()
 
-            BingoLetter.entries.forEach { letter ->
-                val calls = state.callsByLetter[letter].orEmpty()
-                Text(
-                    text = stringResource(
-                        R.string.game_play_letter_calls,
-                        letter.name,
-                        calls.joinToString(", "),
-                    ),
-                )
-            }
+            LetterCallsGrid(
+                state = state,
+                onLetterDismissToggled = onLetterDismissToggled,
+            )
 
-            EndGameAction(onConfirm = onEndGame)
+            EndGameAction(
+                show = showEndGameDialog,
+                onDismiss = { showEndGameDialog = false },
+                onConfirm = {
+                    onEndGame()
+                    showEndGameDialog = false
+                },
+            )
         }
+    }
+}
+
+/**
+ * Bordered/divided grid of all 5 [BingoLetter] rows, mirroring [com.sergiodev.bingo.ui.common.BingoGridDisplay]'s
+ * Material3 `colorScheme.outline` convention. Renders for every [GameMode]; the swipe-to-dismiss
+ * affordance inside [LetterCallsRow] only activates for [GameMode.COLUMNA].
+ */
+@Composable
+private fun LetterCallsGrid(
+    state: GamePlayUiState,
+    onLetterDismissToggled: (BingoLetter) -> Unit,
+) {
+    Column(
+        Modifier.fillMaxWidth()
+            .border(1.dp, MaterialTheme.colorScheme.outline),
+    ) {
+        BingoLetter.entries.forEachIndexed { index, letter ->
+            LetterCallsRow(
+                letter = letter,
+                calls = state.callsByLetter[letter].orEmpty(),
+                dismissible = state.mode == GameMode.COLUMNA,
+                dismissed = letter in state.dismissedLetters,
+                onDismissToggled = { onLetterDismissToggled(letter) },
+            )
+            if (index < BingoLetter.entries.lastIndex) {
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+            }
+        }
+    }
+}
+
+/**
+ * One bordered row of [LetterCallsGrid]. Only wrapped in [SwipeToDismissBox] when [dismissible]
+ * and not already [dismissed]; a dismissed row renders as a plain, dimmed, struck-through row
+ * with a reopen [IconButton] instead — [SwipeToDismissBox] has no built-in "stay dismissed while
+ * remaining in the list" semantics, so this avoids fighting the component's intended use.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Suppress("DEPRECATION")
+@Composable
+private fun LetterCallsRow(
+    letter: BingoLetter,
+    calls: List<Int>,
+    dismissible: Boolean,
+    dismissed: Boolean,
+    onDismissToggled: () -> Unit,
+) {
+    val rowContent: @Composable () -> Unit = {
+        Text(
+            text = stringResource(
+                R.string.game_play_letter_calls,
+                letter.name,
+                calls.joinToString(", "),
+            ),
+            modifier = Modifier.padding(8.dp),
+        )
+    }
+
+    when {
+        dismissible && dismissed -> {
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(
+                            R.string.game_play_letter_calls,
+                            letter.name,
+                            calls.joinToString(", "),
+                        ),
+                        textDecoration = TextDecoration.LineThrough,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(8.dp),
+                    )
+                }
+                Text(
+                    stringResource(R.string.game_play_column_closed_label),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                IconButton(onClick = onDismissToggled) {
+                    Icon(
+                        Icons.Default.Lock,
+                        contentDescription = stringResource(R.string.game_play_column_reopen_description),
+                    )
+                }
+            }
+        }
+
+        dismissible -> {
+            val dismissState = rememberSwipeToDismissBoxState(
+                confirmValueChange = { value ->
+                    if (value == SwipeToDismissBoxValue.EndToStart) {
+                        onDismissToggled()
+                    }
+                    false
+                },
+            )
+            SwipeToDismissBox(
+                state = dismissState,
+                enableDismissFromStartToEnd = false,
+                enableDismissFromEndToStart = true,
+                backgroundContent = {
+                    Row(
+                        Modifier.fillMaxWidth().padding(8.dp),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        Text(
+                            stringResource(R.string.game_play_column_mark_won),
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                },
+            ) {
+                Box(Modifier.background(MaterialTheme.colorScheme.surface)) {
+                    rowContent()
+                }
+            }
+        }
+
+        else -> rowContent()
     }
 }
 
@@ -174,42 +320,27 @@ private fun PossibleWinnersSection(possibleWinners: List<PredictionCandidate>) {
 }
 
 @Composable
-private fun EndGameAction(onConfirm: () -> Unit) {
-    var show by rememberSaveable { mutableStateOf(false) }
+private fun EndGameAction(show: Boolean, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    if (!show) return
 
-    Button(
-        onClick = { show = true },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.error,
-            contentColor = MaterialTheme.colorScheme.onError,
-        ),
-    ) {
-        Text(stringResource(R.string.game_play_end_game_button))
-    }
-
-    if (show) {
-        AlertDialog(
-            onDismissRequest = { show = false },
-            title = { Text(stringResource(R.string.game_play_end_game_dialog_title)) },
-            text = { Text(stringResource(R.string.game_play_end_game_dialog_message)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onConfirm()
-                        show = false
-                    },
-                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                ) {
-                    Text(stringResource(R.string.game_play_end_game_confirm_button))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { show = false }) {
-                    Text(stringResource(R.string.game_play_end_game_cancel_button))
-                }
-            },
-        )
-    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.game_play_end_game_dialog_title)) },
+        text = { Text(stringResource(R.string.game_play_end_game_dialog_message)) },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+            ) {
+                Text(stringResource(R.string.game_play_end_game_confirm_button))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.game_play_end_game_cancel_button))
+            }
+        },
+    )
 }
 
 @Composable

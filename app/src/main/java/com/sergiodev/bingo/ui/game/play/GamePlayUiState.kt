@@ -15,6 +15,7 @@ data class GamePlayUiState(
     val mode: GameMode = GameMode.COLUMNA,
     val calledCount: Int = 0,
     val possibleWinners: List<PredictionCandidate> = emptyList(),
+    val dismissedLetters: Set<BingoLetter> = emptySet(),
 )
 
 /**

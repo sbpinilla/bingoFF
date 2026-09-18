@@ -47,9 +47,14 @@ class GamePlayViewModelTest {
         numbers = listOf(1, 2, 4, 5, 6, 21, 22, 23, 24, 25, 33, 36, 37, 38, 51, 52, 53, 54, 55, 66, 67, 68, 69, 70),
     )
 
-    private fun handle(calledNumbers: List<Int>? = null, mode: GameMode = GameMode.COLUMNA): SavedStateHandle {
+    private fun handle(
+        calledNumbers: List<Int>? = null,
+        mode: GameMode = GameMode.COLUMNA,
+        dismissedLetters: Set<BingoLetter>? = null,
+    ): SavedStateHandle {
         val map = mutableMapOf<String, Any?>("mode" to mode.name)
         if (calledNumbers != null) map["calledNumbers"] = ArrayList(calledNumbers)
+        if (dismissedLetters != null) map["dismissedLetters"] = ArrayList(dismissedLetters.map { it.name })
         return SavedStateHandle(map)
     }
 
@@ -205,5 +210,90 @@ class GamePlayViewModelTest {
 
         val state = viewModel.uiState.value
         assertTrue(state.possibleWinners.isEmpty())
+    }
+
+    @Test
+    fun dismissingLetter_removesItFromPossibleWinners() = runTest {
+        val repository = FakeBoardRepository(listOf(board1))
+        val viewModel = GamePlayViewModel(repository, handle(mode = GameMode.COLUMNA))
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        runCurrent()
+
+        // Call 3 of board1's B column numbers (3,7,12,14,15) -> missing 2, qualifies.
+        listOf(3, 7, 12).forEach { number ->
+            viewModel.onNumberInputChanged(number.toString())
+            runCurrent()
+            viewModel.onSubmitCall()
+            runCurrent()
+        }
+        assertTrue(viewModel.uiState.value.possibleWinners.any { it.boardId == 1L && it.letter == BingoLetter.B })
+
+        viewModel.onLetterDismissToggled(BingoLetter.B)
+        runCurrent()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.possibleWinners.none { it.letter == BingoLetter.B })
+        assertTrue(BingoLetter.B in state.dismissedLetters)
+    }
+
+    @Test
+    fun dismissingLetter_doesNotAffectAutomaticWinDetection() = runTest {
+        val repository = FakeBoardRepository(listOf(board1))
+        val viewModel = GamePlayViewModel(repository, handle(mode = GameMode.COLUMNA))
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        runCurrent()
+
+        viewModel.onLetterDismissToggled(BingoLetter.B)
+        runCurrent()
+
+        // Complete board1's B column despite it being dismissed: 3,7,12,14,15
+        listOf(3, 7, 12, 14, 15).forEach { number ->
+            viewModel.onNumberInputChanged(number.toString())
+            runCurrent()
+            viewModel.onSubmitCall()
+            runCurrent()
+        }
+
+        val state = viewModel.uiState.value
+        assertTrue(state.winners.any { it.boardId == 1L && it.patternId == "COLUMN_B" })
+        assertEquals(1, state.winners.count { it.boardId == 1L && it.patternId == "COLUMN_B" })
+    }
+
+    @Test
+    fun reopeningDismissedLetter_restoresPredictionEligibility() = runTest {
+        val repository = FakeBoardRepository(listOf(board1))
+        val viewModel = GamePlayViewModel(repository, handle(mode = GameMode.COLUMNA))
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        runCurrent()
+
+        listOf(3, 7, 12).forEach { number ->
+            viewModel.onNumberInputChanged(number.toString())
+            runCurrent()
+            viewModel.onSubmitCall()
+            runCurrent()
+        }
+
+        viewModel.onLetterDismissToggled(BingoLetter.B)
+        runCurrent()
+        assertTrue(viewModel.uiState.value.possibleWinners.none { it.letter == BingoLetter.B })
+
+        viewModel.onLetterDismissToggled(BingoLetter.B)
+        runCurrent()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.possibleWinners.any { it.boardId == 1L && it.letter == BingoLetter.B })
+        assertTrue(BingoLetter.B !in state.dismissedLetters)
+    }
+
+    @Test
+    fun dismissedLetters_surviveSimulatedProcessDeath() = runTest {
+        val repository = FakeBoardRepository(listOf(board1))
+        val restoredHandle = handle(dismissedLetters = setOf(BingoLetter.B))
+        val viewModel = GamePlayViewModel(repository, restoredHandle)
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        runCurrent()
+
+        val state = viewModel.uiState.value
+        assertTrue(BingoLetter.B in state.dismissedLetters)
     }
 }
