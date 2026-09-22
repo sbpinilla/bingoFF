@@ -48,6 +48,10 @@
     <string name="game_play_column_mark_won">Marcar como ganado</string>
     <string name="game_play_column_closed_label">Cerrado</string>
     <string name="game_play_column_reopen_description">Reabrir columna</string>
+    <string name="game_play_column_dismiss_dialog_title">¿Marcar columna %1$s como ganada?</string>
+    <string name="game_play_column_dismiss_dialog_message">Dejará de aparecer en posibles ganadores. Podés reabrirla en cualquier momento.</string>
+    <string name="game_play_column_dismiss_confirm_button">Marcar</string>
+    <string name="game_play_column_dismiss_cancel_button">Cancelar</string>
     <!-- ViewModel-owned (consumed starting Phase B) -->
     <string name="game_play_error_invalid_number">Número inválido (1-75)</string>
     <string name="game_play_error_letter_mismatch">La letra seleccionada no corresponde a ese número</string>

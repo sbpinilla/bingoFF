@@ -48,6 +48,10 @@
     <string name="game_play_column_mark_won">Mark as won</string>
     <string name="game_play_column_closed_label">Closed</string>
     <string name="game_play_column_reopen_description">Reopen column</string>
+    <string name="game_play_column_dismiss_dialog_title">Mark column %1$s as won?</string>
+    <string name="game_play_column_dismiss_dialog_message">It will stop appearing in possible winners. You can reopen it anytime.</string>
+    <string name="game_play_column_dismiss_confirm_button">Mark</string>
+    <string name="game_play_column_dismiss_cancel_button">Cancel</string>
     <!-- ViewModel-owned (consumed starting Phase B) -->
     <string name="game_play_error_invalid_number">Invalid number (1-75)</string>
     <string name="game_play_error_letter_mismatch">The selected letter does not match that number</string>

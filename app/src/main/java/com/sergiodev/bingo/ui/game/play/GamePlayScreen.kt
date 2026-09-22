@@ -1,5 +1,6 @@
 package com.sergiodev.bingo.ui.game.play
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -35,6 +36,7 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -89,6 +91,11 @@ fun GamePlayContent(
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     var showEndGameDialog by rememberSaveable { mutableStateOf(false) }
+
+    // The system back gesture (including its edge swipe) is disabled here: the column
+    // dismiss swipe in LetterCallsRow shares the same edge and was sometimes mistaken for
+    // a back gesture, exiting the screen mid-game. Use the TopAppBar's back icon instead.
+    BackHandler(enabled = true) {}
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -218,6 +225,8 @@ private fun LetterCallsGrid(
  * and not already [dismissed]; a dismissed row renders as a plain, dimmed, struck-through row
  * with a reopen [IconButton] instead — [SwipeToDismissBox] has no built-in "stay dismissed while
  * remaining in the list" semantics, so this avoids fighting the component's intended use.
+ * Swiping never dismisses directly — it opens a confirmation dialog first; reopening a closed
+ * row is not destructive to the tracking state, so it stays a plain tap with no confirmation.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("DEPRECATION")
@@ -229,6 +238,8 @@ private fun LetterCallsRow(
     dismissed: Boolean,
     onDismissToggled: () -> Unit,
 ) {
+    var showDismissConfirm by remember { mutableStateOf(false) }
+
     val rowContent: @Composable () -> Unit = {
         Text(
             text = stringResource(
@@ -276,7 +287,7 @@ private fun LetterCallsRow(
             val dismissState = rememberSwipeToDismissBoxState(
                 confirmValueChange = { value ->
                     if (value == SwipeToDismissBoxValue.EndToStart) {
-                        onDismissToggled()
+                        showDismissConfirm = true
                     }
                     false
                 },
@@ -297,13 +308,36 @@ private fun LetterCallsRow(
                     }
                 },
             ) {
-                Box(Modifier.background(MaterialTheme.colorScheme.surface)) {
+                Box(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface)) {
                     rowContent()
                 }
             }
         }
 
         else -> rowContent()
+    }
+
+    if (showDismissConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDismissConfirm = false },
+            title = { Text(stringResource(R.string.game_play_column_dismiss_dialog_title, letter.name)) },
+            text = { Text(stringResource(R.string.game_play_column_dismiss_dialog_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDismissToggled()
+                        showDismissConfirm = false
+                    },
+                ) {
+                    Text(stringResource(R.string.game_play_column_dismiss_confirm_button))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDismissConfirm = false }) {
+                    Text(stringResource(R.string.game_play_column_dismiss_cancel_button))
+                }
+            },
+        )
     }
 }
 
